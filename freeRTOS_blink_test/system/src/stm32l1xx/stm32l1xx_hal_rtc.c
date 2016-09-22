@@ -226,6 +226,7 @@ HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
 
   /* Set Initialization mode */
+  volatile uint8_t i = RTC_EnterInitMode(hrtc);
   if(RTC_EnterInitMode(hrtc) != HAL_OK)
   {
     /* Enable the write protection for RTC registers */
@@ -865,7 +866,7 @@ HAL_StatusTypeDef RTC_EnterInitMode(RTC_HandleTypeDef* hrtc)
     /* Wait till RTC is in INIT state and if Time out is reached exit */
     while((hrtc->Instance->ISR & RTC_ISR_INITF) == (uint32_t)RESET)
     {
-      if((HAL_GetTick() - tickstart) >  RTC_TIMEOUT_VALUE)
+      if((HAL_GetTick() - tickstart) >  5000)
       {       
         return HAL_TIMEOUT;
       } 

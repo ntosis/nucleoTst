@@ -33,6 +33,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hardware_init.h"
 #include "temperatureSens.h"
+#include "rtc.h"
 //#include "stm32l1xx_hal_msp.c"
 /* USER CODE BEGIN Includes */
 
@@ -43,8 +44,13 @@
 osThreadId defaultTaskHandle;
 osThreadId blinkTaskHandle;
 osSemaphoreId semHandle;
+
+RTC_TimeTypeDef _time;
+
 extern uint8_t Temperature;
 extern SPI_HandleTypeDef SpiHandle;
+extern RTC_HandleTypeDef hrtc;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -83,6 +89,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   initTempSens();
+  rtc_init();
   //HAL_MspInit();
   //HAL_SPI_MspInit(&SpiHandle);
   /* USER CODE BEGIN 2 */
@@ -163,6 +170,8 @@ void BlinkTask(void const *argument)
 		while(1) {
 		        actualTemperature();
 			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
+			HAL_RTC_GetTime(&hrtc,&_time,RTC_FORMAT_BIN);
+			uint8_t t = _time.Seconds;
 			if(Temperature>25) osDelay(500);
 			else osDelay(2500);
 		}
