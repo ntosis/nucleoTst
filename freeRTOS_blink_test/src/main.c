@@ -89,13 +89,13 @@ int main(void)
   MX_GPIO_Init();
   /* Initialize LCD and LEDs */
  //// BSP_Config();
-  TFTInit();
+  //-->TFTInit();
   //initR();
   //st7735_Init();
   /* Init the STemWin GUI Library */
-  /////GUI_Init();
+  GUI_Init();
   /* Activate the use of memory device feature */
-  ////WM_SetCreateFlags(WM_CF_MEMDEV);
+  WM_SetCreateFlags(WM_CF_MEMDEV);
     
   MainTask();
   

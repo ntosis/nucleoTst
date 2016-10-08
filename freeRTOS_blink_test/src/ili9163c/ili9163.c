@@ -37,7 +37,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "st7735.h"
+#include <ili9163/ili9163.h>
 extern SPI_HandleTypeDef SpiHandle;
 
 /** @addtogroup BSP
@@ -319,11 +319,11 @@ void st7735_WritePixel(uint16_t Xpos, uint16_t Ypos, uint16_t RGBCode)
   */
 void LCD_IO_WriteReg(uint8_t Reg){
 
-         __LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+         __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
          __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
          HAL_SPI_Transmit(&SpiHandle,(uint8_t)Reg, 1,500);
          //__LOW(LCD_CMD);
-         __HIGH(TempSensor_SS);
+         __HIGH(LCD_ChipSelect);
          __HIGH(LCD_CMD);
 
 
@@ -331,27 +331,27 @@ void LCD_IO_WriteReg(uint8_t Reg){
 void st7735_WriteReg(uint8_t LCDReg, uint8_t LCDRegValue)
 {
     //LCD_IO_WriteReg((uint8_t)Data);
-     __LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+     __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
      __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
      HAL_SPI_Transmit(&SpiHandle,(uint8_t)LCDReg, 1,500);
      //__LOW(LCD_CMD);
      LCD_IO_WriteMultipleData(&LCDRegValue, 1);
-     __HIGH(TempSensor_SS);
+     __HIGH(LCD_ChipSelect);
      __HIGH(LCD_CMD);
 }
 
 void LCD_IO_WriteMultipleData(uint8_t *pData, uint32_t Size) {
-    __LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+    __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
     __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
     HAL_SPI_Transmit(&SpiHandle,(uint8_t*)pData, Size,500);
-    __HIGH(TempSensor_SS);
+    __HIGH(LCD_ChipSelect);
     __HIGH(LCD_CMD);
 }
 void LCD_IO_WriteData(uint8_t *pData, uint32_t Size) {
-    __LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+    __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
     __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
     HAL_SPI_Transmit(&SpiHandle,(uint8_t*)pData, Size,500);
-    __HIGH(TempSensor_SS);
+    __HIGH(LCD_ChipSelect);
 
 }
 
@@ -546,10 +546,10 @@ void TFTInit()
 
 	TFTWriteCmd(ST7735_INVCTR);  // display inversion control
 	TFTWriteData(0x0);           // line inversion
-/*
+
 	TFTWriteCmd(ST7735_PWCTR1);  // power control
 	TFTWriteData(0x02);          // GVDD = 4.7V
-	TFTWriteData(0x70);          // 1.0uA
+	TFTWriteData(0x03);          // 1.0uA
 	Tick(10);
 	TFTWriteCmd(ST7735_PWCTR2);  // power control
 	TFTWriteData(0x05);          // VGH = 14.7V, VGL = -7.35V
@@ -566,7 +566,7 @@ void TFTInit()
 	TFTWriteCmd(ST7735_PWCTR6);  // power control
 	TFTWriteData(0x11);
 	TFTWriteData(0x15);
-*/
+
 	TFTWriteCmd(ST7735_GMCTRP1);
 	TFTWriteData(0x09);
 	TFTWriteData(0x16);
@@ -602,40 +602,94 @@ void TFTInit()
 	TFTWriteData(0x02);
 	TFTWriteData(0x0F);
 	Tick(10);
-/*
-	TFTWriteCmd(ST7735_CASET);	/* Set window area X
-	TFTWriteData(0x00);
-	TFTWriteData(0x02);
-	TFTWriteData(0x00);
-	TFTWriteData(0x81);
 
-	TFTWriteCmd(ST7735_RASET);	/* Set window area Y
+	TFTWriteCmd(ST7735_CASET);	/* Set window area X*/
 	TFTWriteData(0x00);
 	TFTWriteData(0x02);
 	TFTWriteData(0x00);
 	TFTWriteData(0x81);
-*/
+	Tick(10);
+	TFTWriteCmd(ST7735_RASET);	/* Set window area Y*/
+	TFTWriteData(0x00);
+	TFTWriteData(0x02);
+	TFTWriteData(0x00);
+	TFTWriteData(0x81F);
+	Tick(10);
+
 	TFTWriteCmd(ST7735_NORON);   // normal display on
 	Tick(10);
 
 	TFTWriteCmd(ST7735_DISPON);
 	Tick(500);
 
+	TFTWriteCmd(0x00);
+
 	//TFTBackLight(1);
+
+}
+void TFTInit2()
+{
+	__HIGH(LCD_Reset);
+
+	TFTWriteCmd(ST7735_SWRESET); // software reset
+	Tick(250);
+	TFTWriteCmd(ST7735_SLPOUT);  // out of sleep mode
+	Tick(250);
+	TFTWriteCmd(0x3A); //Interface pixel format
+	//TFTWriteData(0xC6); //18 bit color/ 18bit/pixel
+	TFTWriteData(0x55); //16bit
+	TFTWriteCmd(0x26); //GAMMA Curve
+	TFTWriteData(0x01); //CURVE 1
+
+	TFTWriteCmd(0x13); //normal display mode ON
+
+	TFTWriteCmd(0xB1); //Frame Rate 61,7Hz for 128*160 px
+	TFTWriteData(0x0E);  //DIVA 14 decimal
+	TFTWriteData(0x14);    //VPA 20 decimal
+
+	TFTWriteCmd(0xB4);   //display invert frame
+	TFTWriteData(0x07);
+
+	TFTWriteCmd(0xC0);   //PWR CTRL 1
+	TFTWriteData(0x0A);   //4.3VC
+	TFTWriteData(0x03);   //2.6VRH
+
+	TFTWriteCmd(0xC1);   //PWR CTRL 2
+	TFTWriteData(0x02);   //VCL VGH	VGL 2 2xVCI -1xVCI1 2.5xAVDD -2.5xAVDD
+
+
+	TFTWriteCmd(0xC5);   //VCOM Ctrl 1
+	TFTWriteData(0x50);   //VCOML 4.50
+	TFTWriteData(0x56);   //VCOML -0.350
+
+	TFTWriteCmd(0xC7);   //VCOM Offset Ctrl
+	TFTWriteData(0x00);
+
+	TFTWriteCmd(0x2A);//Set Column Address
+	TFTWriteData(0x00);
+	TFTWriteData(0x7F); //127
+
+	TFTWriteCmd(0x2B);//Set Page Address
+	TFTWriteData(0x00);
+	TFTWriteData(0x9F); //159
+
+	TFTWriteCmd(ST7735_DISPON);  // set color mode
+	Tick(50);
 
 }
 void Tick(uint16_t i)
 {
-	while(--i);
+	HAL_Delay(i);
 }
 void TFTWriteCmd(uint8_t command)
 {
 	uint8_t i = 8;
 
-	 __LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+	 __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
 	 __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
-	 HAL_SPI_Transmit(&SpiHandle,(uint8_t)&command, 1,500);
-	__HIGH(TempSensor_SS);
+	 HAL_SPI_Transmit(&SpiHandle,&command, 1,500);
+	__HIGH(LCD_ChipSelect);
+	__HIGH(LCD_CMD);
 
 	return;
 }
@@ -644,10 +698,10 @@ void TFTWriteData(uint8_t data)
 {
 	uint8_t i = 8;
 
-	__LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+	__LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
 	__HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
-	HAL_SPI_Transmit(&SpiHandle,(uint8_t)&data, 1,500);
-	__HIGH(TempSensor_SS);
+	HAL_SPI_Transmit(&SpiHandle,&data, 1,500);
+	__HIGH(LCD_ChipSelect);
 
 
 	return;
@@ -669,10 +723,16 @@ void TFTSetWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
 
 void TFTPixel(uint16_t x, uint16_t y, uint16_t color)
 {
-	TFTSetWindow(x, y, x , y);
+	TFTSetWindow(x, y, x+1 , y+1);
 	TFTWriteCmd(ST7735_RAMWR);		/* RAM Access */
-	TFTWriteData(color >> 8);
-	TFTWriteData(color);
+
+	__LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+	__HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
+	HAL_SPI_Transmit(&SpiHandle,&color, 1,500);
+	__HIGH(LCD_ChipSelect);
+
+	//TFTWriteData(color >> 8);
+	//TFTWriteData(color);
 }
 /**
 * @}

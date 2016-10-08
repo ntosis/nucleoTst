@@ -20,7 +20,7 @@ Purpose     : Simple demo drawing "Hello world"
 ----------------------------------------------------------------------
 */
 
-#include "st7735.h"
+#include "GUI.h"
 
 /*********************************************************************
 *
@@ -33,21 +33,10 @@ Purpose     : Simple demo drawing "Hello world"
 *       MainTask
 */
 void MainTask(void) {
-    int x,y,z=0;
-    TFTSetWindow(0, 0, 128, 128);
-
-    /*for(z = 0; z < 65535; z=z+100) {
-
-    	for(y = 0; y < 128; y++) {
-    		for(x = 0; x < 128; x++) {
-    			TFTPixel(x, y, z);
-    		}
-    	}
-
-    }*/
-  while(1){
-
-  };
+  GUI_Clear();
+  GUI_SetFont(&GUI_Font20_1);
+  GUI_DispStringAt("Hello world!",50,50);
+  while(1);
 }
 
 /*************************** End of file ****************************/

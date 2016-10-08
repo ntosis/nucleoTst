@@ -79,11 +79,11 @@ Purpose     : Display controller configuration (single layer)
   ******************************************************************************
   */
 
+#include <ili9163/ili9163.h>
 #include "GUI.h"
 #include "GUIDRV_FlexColor.h"
 #include "main.h"
 #include "stm32l1xx_hal_spi.h"
-#include "st7735/st7735.h"
 #include "hardware_init.h"
 /*********************************************************************
 *
@@ -96,7 +96,7 @@ Purpose     : Display controller configuration (single layer)
 // Physical display size
 //
 #define XSIZE_PHYS  128
-#define YSIZE_PHYS  128
+#define YSIZE_PHYS  160
 
 extern SPI_HandleTypeDef SpiHandle;
 
@@ -160,12 +160,11 @@ static void LCD_LL_Init(void);
 */
 static void LcdWriteReg(U16 Data)
 {
-  //LCD_IO_WriteReg((uint8_t)Data);
-  __LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-  __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
-  HAL_SPI_Transmit(&SpiHandle,(uint8_t)Data, 1,500);
-  //__LOW(LCD_CMD);
-  __HIGH(TempSensor_SS);
+       __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+       __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
+       HAL_SPI_Transmit(&SpiHandle,(U8*)&Data, 1,500);
+       __HIGH(LCD_ChipSelect);
+       __HIGH(LCD_CMD);
 }
 
 /********************************************************************
@@ -177,12 +176,10 @@ static void LcdWriteReg(U16 Data)
 */
 static void LcdWriteData(U16 Data)
 {
- // LCD_IO_WriteMultipleData((uint8_t*)&Data, 2);
-    __LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-    __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send data to RAM
-    HAL_SPI_Transmit(&SpiHandle,(uint8_t*)&Data, 2,500);
-    __LOW(LCD_CMD);
-    __HIGH(TempSensor_SS);
+    __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+    __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
+    HAL_SPI_Transmit(&SpiHandle,(U8*)&Data, 1,500);
+    __HIGH(LCD_ChipSelect);
 }
 
 /********************************************************************
@@ -194,12 +191,10 @@ static void LcdWriteData(U16 Data)
 */
 static void LcdWriteDataMultiple(U16 *pData, int NumItems)
 {
- // LCD_IO_WriteMultipleData((uint8_t *) pData, 2 * NumItems);
-  __LOW(TempSensor_SS); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-  __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send data to RAM
-  HAL_SPI_Transmit(&SpiHandle,(uint8_t*)pData, 2 * NumItems,500);
-  __LOW(LCD_CMD);
-  __HIGH(TempSensor_SS);
+   __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+   __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
+   HAL_SPI_Transmit(&SpiHandle,(U8*)pData, 2 * NumItems,500);
+   __HIGH(LCD_ChipSelect);
 }
 
 /********************************************************************
@@ -233,7 +228,7 @@ static void LcdReadDataMultiple(U16 *pData, int NumItems)
 static void LCD_LL_Init(void)
 {
 
-    st7735_Init();
+    TFTInit2();
 
 }
 
