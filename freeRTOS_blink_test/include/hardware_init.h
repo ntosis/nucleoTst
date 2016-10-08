@@ -27,7 +27,10 @@
 //#define __READ(pin)           _GET(PIN,pin)
 
 // Set Pins
-#define TempSensor_SS B,4 //Temperature slave select Pin, Arduino connector D5
+#define LCD_ChipSelect B,5   //Temperature slave select Pin, Arduino connector D5
+#define LCD_CMD A,8
+#define TempSensor_SS B,4
+#define LCD_Reset A,10
 
 void MX_GPIO_Init(void);
 

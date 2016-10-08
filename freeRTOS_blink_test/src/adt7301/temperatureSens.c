@@ -12,7 +12,7 @@ float actualTemperature() {
 
    float RoomTemperature,ADC_Temp_Code_dec;
     int TempVal =0;
-    uint8_t SensorData[2]= {0x00,0x00};
+    uint8_t SensorData[2]= {0xAB,0xBC};
     __LOW(TempSensor_SS);
     //_delay_us(10);
     osDelay(500);
