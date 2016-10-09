@@ -24,4 +24,16 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>include/guiLibs</name>
+			<type>2</type>
+			<location>/home/unix/MyCODE/git/FreeRTOS_BlinkTest/freeRTOS_blink_test/include/guiLibs</location>
+		</link>
+		<link>
+			<name>system/guiLibs</name>
+			<type>2</type>
+			<location>/home/unix/MyCODE/git/FreeRTOS_BlinkTest/freeRTOS_blink_test/system/guiLibs</location>
+		</link>
+	</linkedResources>
 </projectDescription>

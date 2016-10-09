@@ -10,6 +10,7 @@
 
 #include "stm32l1xx_hal.h"
 #include "cmsis_os.h"
+#include "ili9163.h"
 
 //Pin Macros
 #define _SET(type,name,bit)          HAL_GPIO_WritePin(type ## name, GPIO_PIN_##bit, GPIO_PIN_SET)

@@ -33,7 +33,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hardware_init.h"
 #include "temperatureSens.h"
-#include "st7735.h"
+#include "ili9163.h"
+#include "FRAMEWIN.h"
+
 //#include "rtc.h"
 //#include "stm32l1xx_hal_msp.c"
 /* USER CODE BEGIN Includes */
@@ -85,9 +87,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   initTempSens();
-  TFTInit2();
-  uint8_t pwrstatus[]={0,0,0};
-  TFTWriteCmd(0x0A);
+  //TFTInit2();
 
   //HAL_MspInit();
   //HAL_SPI_MspInit(&SpiHandle);
@@ -106,7 +106,8 @@ int main(void)
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
-
+  GUI_Init();
+  WM_SetCreateFlags(WM_CF_MEMDEV);
   /* Create the threads and semaphore */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
@@ -168,12 +169,7 @@ void BlinkTask(void const *argument)
 	if(osSemaphoreWait(semHandle, osWaitForever) == osOK) {
 		while(1) {
 		        actualTemperature();
-		        for(uint8_t i=0;i<128;i++) {
-
-		              for(uint8_t j=0;j<160;j++) {
-		              TFTPixel(i,j,ST7735_BLUE);
-		              }
-		          }
+		        MainTask();
 			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
 			if(Temperature>25) osDelay(500);
 			else osDelay(2500);

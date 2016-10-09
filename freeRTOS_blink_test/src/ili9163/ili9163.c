@@ -37,7 +37,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "st7735.h"
+#include "ili9163.h"
 extern SPI_HandleTypeDef SpiHandle;
 
 /** @addtogroup BSP
@@ -648,7 +648,7 @@ void TFTInit2()
 	TFTWriteData(0x14);    //VPA 20 decimal
 
 	TFTWriteCmd(0xB4);   //display invert frame
-	TFTWriteData(0x07);
+	TFTWriteData(0x00);  //0x07 old value
 
 	TFTWriteCmd(0xC0);   //PWR CTRL 1
 	TFTWriteData(0x0A);   //4.3VC
