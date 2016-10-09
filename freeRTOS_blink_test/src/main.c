@@ -31,10 +31,13 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
+#include "main.h"
 #include "hardware_init.h"
 #include "temperatureSens.h"
 #include "ili9163.h"
 #include "FRAMEWIN.h"
+
+
 
 //#include "rtc.h"
 //#include "stm32l1xx_hal_msp.c"
