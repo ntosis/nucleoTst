@@ -21,7 +21,9 @@ Purpose     : Simple demo drawing "Hello world"
 */
 
 #include "GUI.h"
-
+#include "BUTTON.h"
+static BUTTON_Handle hButton;
+;
 /*********************************************************************
 *
 *       Public code
@@ -36,7 +38,9 @@ void MainTask(void) {
   GUI_Clear();
   GUI_SetFont(&GUI_Font20_1);
   GUI_SetTextMode(GUI_TM_TRANS);
-  GUI_DispStringAt("Hello world!",50,50);
+  hButton = BUTTON_Create(10,10,50,15,GUI_ID_OK,WM_CF_SHOW);
+  BUTTON_SetText(hButton,"Test");
+  GUI_Exec();
   while(1);
 }
 
