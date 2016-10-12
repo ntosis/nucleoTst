@@ -43,6 +43,7 @@
 
 osThreadId defaultTaskHandle;
 osThreadId blinkTaskHandle;
+osThreadId blinkTaskHandle_150ms;
 osSemaphoreId semHandle;
 extern uint8_t Temperature;
 extern SPI_HandleTypeDef SpiHandle;
@@ -56,6 +57,9 @@ void SystemClock_Config(void);
 void Error_Handler(void);
 void StartDefaultTask(void const * argument);
 void BlinkTask(void const *argument);
+void BlinkTask_150ms(void const *argument);
+
+
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -107,6 +111,9 @@ int main(void)
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
   osThreadDef(blinkTask, BlinkTask, osPriorityNormal, 0, 128);
   blinkTaskHandle = osThreadCreate(osThread(blinkTask), NULL);
+
+  osThreadDef(blinkTask_150ms, BlinkTask_150ms, osPriorityRealtime, 1, 128);
+  blinkTaskHandle_150ms = osThreadCreate(osThread(blinkTask_150ms), NULL);
   osSemaphoreDef(sem);
   semHandle = osSemaphoreCreate(osSemaphore(sem), 1);
   osSemaphoreWait(semHandle, osWaitForever);
@@ -158,17 +165,36 @@ void StartDefaultTask(void const * argument)
      }
   /* USER CODE END 5 */ 
 }
+
 void BlinkTask(void const *argument)
 {
+    portTickType xLastWakeTime;
+    const portTickType xDelay = 500 / portTICK_RATE_MS;
+    // Initialise the xLastWakeTime variable with the current time.
+         xLastWakeTime = xTaskGetTickCount ();
 	if(osSemaphoreWait(semHandle, osWaitForever) == osOK) {
 		while(1) {
-		        actualTemperature();
+		        //actualTemperature();
 			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
-			if(Temperature>25) osDelay(500);
-			else osDelay(2500);
+			  // Wait for the next cycle.
+			  vTaskDelayUntil( &xLastWakeTime, xDelay );
 		}
 	}
 }
+
+void BlinkTask_150ms(void const *argument)
+    {
+        portTickType xLastWakeTime;
+        const portTickType xDelay = 80 / portTICK_RATE_MS;
+        // Initialise the xLastWakeTime variable with the current time.
+             xLastWakeTime = xTaskGetTickCount ();
+    		while(1) {
+    		        //actualTemperature();
+    			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_10);
+    			  // Wait for the next cycle.
+    			vTaskDelayUntil( &xLastWakeTime, xDelay );
+    		}
+    	}
 /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM2 interrupt took place, inside
