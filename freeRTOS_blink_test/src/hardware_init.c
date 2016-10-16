@@ -6,6 +6,10 @@
  */
 
 #include "hardware_init.h"
+
+TIM_Encoder_InitTypeDef encoder;
+TIM_HandleTypeDef timer;
+
 /** Configure pins as
         * Analog
         * Input
@@ -15,6 +19,36 @@
      PA2   ------> USART2_TX
      PA3   ------> USART2_RX
 */
+void enc(void) {
+
+
+
+    timer.Instance = TIM3;
+    timer.Init.Period = 0xFFFF;
+    timer.Init.CounterMode = TIM_COUNTERMODE_UP;
+    timer.Init.Prescaler = 0;
+    timer.Init.ClockDivision = TIM_CLOCKDIVISION_DIV4;
+
+    encoder.EncoderMode = TIM_ENCODERMODE_TI2;
+
+    encoder.IC1Filter = 0x05;
+    encoder.IC1Polarity = TIM_INPUTCHANNELPOLARITY_RISING;
+    encoder.IC1Prescaler = TIM_ICPSC_DIV8;
+    encoder.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+
+    encoder.IC2Filter = 0x05;
+    encoder.IC2Polarity = TIM_INPUTCHANNELPOLARITY_FALLING;
+    encoder.IC2Prescaler = TIM_ICPSC_DIV8;
+    encoder.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+
+    if (HAL_TIM_Encoder_Init(&timer,&encoder) != HAL_OK) {
+     Error_Handler();
+    }
+
+    if(HAL_TIM_Encoder_Start(&timer,TIM_CHANNEL_ALL)!=HAL_OK){
+     Error_Handler();
+    }
+}
 void MX_GPIO_Init(void)
 {
 
@@ -25,6 +59,7 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __TIM3_CLK_ENABLE();
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -55,24 +90,17 @@ void MX_GPIO_Init(void)
       GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
       HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Arduino Connector D5_Pin (PB4) SPI Slave select */
 
-   GPIO_InitStruct.Pin = GPIO_PIN_4;
-   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-   GPIO_InitStruct.Pull = GPIO_PULLUP;
-   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 
    /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
 }
 /** System Clock Configuration
 */
-void SystemClock_Config(void)
+void SystemClock_Config2(void)
 {
 
   RCC_OscInitTypeDef RCC_OscInitStruct;

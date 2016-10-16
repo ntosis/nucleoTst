@@ -324,6 +324,7 @@ typedef struct
 #define TIM_CLOCKDIVISION_DIV1                       ((uint32_t)0x0000)
 #define TIM_CLOCKDIVISION_DIV2                       (TIM_CR1_CKD_0)
 #define TIM_CLOCKDIVISION_DIV4                       (TIM_CR1_CKD_1)
+#define TIM_CLOCKDIVISION_DIV8			     (0x4U << TIM_CR1_CKD_Pos)
 /**
   * @}
   */
