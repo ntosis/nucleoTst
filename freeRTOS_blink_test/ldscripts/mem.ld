@@ -1,7 +1,7 @@
 /*
  * Memory Spaces Definitions.
  *
- * Need modifying for a specific board. 
+ * Need modifying for a specific board.
  *   FLASH.ORIGIN: starting address of flash
  *   FLASH.LENGTH: length of flash
  *   RAM.ORIGIN: starting address of RAM bank 0
@@ -21,6 +21,7 @@ MEMORY
    * the the specific requirements of your hardware. The zero
    * length prevents inadvertent allocation.
    */
+  EEPROM1 (rx) : ORIGIN = 0x08080000, LENGTH = 8K
   CCMRAM (xrw) : ORIGIN = 0x10000000, LENGTH = 0
   FLASHB1 (rx) : ORIGIN = 0x00000000, LENGTH = 0
   EXTMEMB0 (rx) : ORIGIN = 0x00000000, LENGTH = 0
