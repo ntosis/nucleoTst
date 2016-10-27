@@ -43,24 +43,33 @@ void initRtrEncoder() {
 
 void readEncoder(void)
 {
-    if (!(__READ(RtrEnc_CLK))) {
-	// if button=logic LOW counter ++
-        if(!( __READ(RtrEnc_DT))) {
+        static const int8_t lookup_table[] = {0,0,0,-1,0,0,1,0,0,1,0,0,-1,0,0,0};
+        static uint8_t enc_val = 0;
 
-            up++;
-        }
-        // if button =logic high counter --
-        else {
+        enc_val = enc_val << 2;
+        uint8_t readPins =0;
 
-            up--;
-        }
-        TurnDetected = SET;
+        readPins = !( __READ(RtrEnc_CLK))<<1;
+        readPins |= !(__READ(RtrEnc_DT));
+
+        enc_val = enc_val | (readPins);
+
+        up = up + lookup_table[enc_val & 0b1111];
+        int8_t result = lookup_table[enc_val & 0b1111];
+        if(!(result==0)) {
+
+            TurnDetected = true;
+
         }
 }
 
 void readButton(const portTickType now) {
 
-    if (!(__READ(RtrEnc_SWTCH))) {
+    static uint8_t stateOfSwitch=0;
+
+    stateOfSwitch |= !(__READ(RtrEnc_SWTCH));
+    //bit masking for the 7,6 th bits.
+    if ((stateOfSwitch&0b11)==1) {
     ArrayOfClicks[pnt].timeOfClick= now;
     ArrayOfClicks[pnt].clicked=true;
     pnt++;
@@ -68,6 +77,8 @@ void readButton(const portTickType now) {
     if(pnt==5) pnt=0;
     if(signalButton<2) signalButton++;
     }
+    //store the state for the next scan;
+    stateOfSwitch = stateOfSwitch<<1;
 }
 
 void checkStruct() {

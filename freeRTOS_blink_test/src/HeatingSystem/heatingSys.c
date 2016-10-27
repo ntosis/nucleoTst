@@ -89,6 +89,8 @@ void initLEDs(void){
 
          /*Configure GPIO pin Output Level */
          HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4, GPIO_PIN_RESET);
+
+         LEDfunction();
 }
 
 void LEDfunction(void) {

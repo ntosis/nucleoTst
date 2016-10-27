@@ -185,7 +185,7 @@ void StartDefaultTask(void const * argument)
 void Task_300ms(void const *argument)
 {
     portTickType xLastWakeTime;
-    const portTickType xDelay = 300 / portTICK_RATE_MS;
+    const portTickType xDelay = 100 / portTICK_RATE_MS;
     // Initialise the xLastWakeTime variable with the current time.
          xLastWakeTime = xTaskGetTickCount ();
 		while(1) {
@@ -231,6 +231,7 @@ void Task_500ms(void const *argument)
     			 //run every 1 second
     			  if(internCounter==2) {
     				      Ctrl_Subsystem_step();
+
     				      internCounter=0;
     				       }
     			internCounter++;

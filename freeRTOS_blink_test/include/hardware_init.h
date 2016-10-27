@@ -40,7 +40,7 @@ typedef enum { false, true } bool;
 #define RtrEnc_SWTCH B,3 // Arduino connector D3
 #define RED_LED A,1	  //PIN A1 at Arduino UNO/Duemilanove
 #define GREEN_LED A,4	  //PIN A2 at Arduino UNO/Duemilanove
-#define BLUE_LED A,0      //PIN A0 at Arduino UNO/Duemilanove
+#define BLUE_LED A,5 //0      //PIN A0 at Arduino UNO/Duemilanove
 #define RELAY_PIN B,10     //PIN 06 at Arduino UNO/Duemilanove
 
 void MX_GPIO_Init(void);
