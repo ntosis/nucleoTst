@@ -35,6 +35,7 @@
 #include "temperatureSens.h"
 #include "eeprom_calib.h"
 #include "pid.h"
+#include "rtc.h"
 //#include "rtc.h"
 //#include "stm32l1xx_hal_msp.c"
 /* USER CODE BEGIN Includes */
@@ -94,6 +95,20 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
+
+  /*##-Configure the RTC peripheral #######################################*/
+  Configure_RTC_Clock();
+
+  /*##-Check if Data stored in BackUp register1: No Need to reconfigure RTC#*/
+  /* Read the Back Up Register 1 Data */
+  if (LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR1) != RTC_BKP_DATE_TIME_UPDTATED)
+  {
+    /*##-Configure the RTC peripheral #######################################*/
+    Configure_RTC();
+
+    /* Configure RTC Calendar */
+    Configure_RTC_Calendar();
+  }
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -230,10 +245,15 @@ void Task_500ms(void const *argument)
 
     			 //run every 1 second
     			  if(internCounter==2) {
+
     				      Ctrl_Subsystem_step();
+    				      /*##-3- Display the updated Time and Date ################################*/
+    				      LED_Blinking((__LL_RTC_CONVERT_BCD2BIN(LL_RTC_TIME_GetSecond(RTC)))*10);
 
     				      internCounter=0;
+
     				       }
+
     			internCounter++;
 
     			  // Wait for the next cycle.
