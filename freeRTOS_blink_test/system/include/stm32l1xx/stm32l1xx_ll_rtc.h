@@ -45,11 +45,10 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx.h"
-
 /** @addtogroup STM32L1xx_LL_Driver
   * @{
   */
-
+//#define RTC                 ((RTC_TypeDef *) RTC_BASE)
 #if defined(RTC)
 
 /** @defgroup RTC_LL RTC

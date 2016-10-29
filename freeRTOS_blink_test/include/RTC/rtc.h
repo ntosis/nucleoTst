@@ -8,8 +8,11 @@
 #ifndef RTC_H_
 #define RTC_H_
 
-#include <stm32l1xx_ll_rtc.h>
 #include "hardware_init.h"
+#include "stm32l1xx_ll_rtc.h"
+#include "stm32l1xx_ll_rcc.h"
+#include "stm32l1xx_ll_pwr.h"
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Oscillator time-out values */
@@ -44,8 +47,8 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Buffers used for displaying Time and Date */
-uint8_t aShowTime[50] = {0};
-uint8_t aShowDate[50] = {0};
+static uint8_t aShowTime[50] = {0};
+static uint8_t aShowDate[50] = {0};
 
 #if (USE_TIMEOUT == 1)
 uint32_t Timeout = 0; /* Variable used for Timeout management */

@@ -19,7 +19,7 @@ void Configure_RTC_Clock(void)
      - Enable write access to configure the RTC clock source (to be done once after reset).
      - Reset the Back up Domain
      - Configure the needed RTC clock source */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+ // LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR); In clock congif its running
   LL_PWR_EnableBkUpAccess();
 
   /*##-2- Configure LSE/LSI as RTC clock source ###############################*/
@@ -286,7 +286,8 @@ void LED_Blinking(uint32_t Period)
 {
   /* Toggle IO in an infinite loop */
 
-
-    LL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
+    volatile uint32_t Period2=Period;
+    Period2;
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
 }
 
