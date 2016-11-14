@@ -709,11 +709,13 @@ void DWT_Delay(uint32_t us) // microseconds
 }
 
 void TFTInit2_4Inch(void) {
+    __HIGH(LCD_RD);
     __HIGH(LCD_Reset);
     HAL_Delay(5);
     __LOW(LCD_Reset);
     HAL_Delay(5);
     __HIGH(LCD_Reset);
+    __LOW(LCD_RD);
     TFTWriteCmd(0x00);
     TFTWriteData(0x00);
     TFTWriteData(0x00);
@@ -743,65 +745,57 @@ void Tick(uint16_t i)
 void TFTWriteCmd(const uint16_t command)
 {
 
-	//__HIGH(LCD_RD);
-	volatile uint16_t  i = command;
-		//GPIOB->ODR &=  ~((1<<0)); //LOW CS
-
-		GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
-		asm("nop");
-		//GPIOB->ODR &=  ~((1<<0)); //LOW CS
-		volatile uint8_t j = (uint8_t)(i>>8);
-		GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-		GPIOB->ODR |=  ((j<<3)&0b11111111000); //DATA
-
-		GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
-		asm("nop");
-		GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-
-		j = (uint8_t)(i);
-		GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-		GPIOB->ODR |=  ((j<<3)&0b11111111000); //DATA
-		GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
-		asm("nop");
-		GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-		//GPIOB->ODR |=  ((1<<0)); //HIGH CS
-		asm("nop");
-		//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
-
-		GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-		//GPIOA->ODR &=  ~(0xFF&0b0000000000010001); //CLEAR RS RD
-		//GPIOB->ODR |=  ((1<<0)); //HIGH CS
+	__HIGH(LCD_RD); //HIGH Read pin, this pin drives the IC, HIGH = send data, LOW = Receive data
+	GPIOB->ODR &=  ~((1<<0)); //LOW CS
+	GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS to send command
+	asm("nop");
+	//Transfer high Byte
+	uint8_t hi = (uint8_t)(command>>8);
+	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
+	GPIOB->ODR |=  ((hi<<3)&0b11111111000); //DATA
+	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
+	asm("nop");
+	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
+	//Transfer low byte
+	uint8_t lo = (uint8_t)(command);
+	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
+	GPIOB->ODR |=  ((lo<<3)&0b11111111000); //DATA
+	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
+	asm("nop");
+	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
+	asm("nop");
+	//Reset pins, ports etc.
+	//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
+	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
+	GPIOA->ODR &=  ~(0xFF&0b0000000000010001); //CLEAR RS RD
+	GPIOB->ODR |=  ((1<<0)); //HIGH CS
 }
 
 void TFTWriteData(const uint16_t data)
 {
-	volatile uint16_t  i = data;
-	 //__HIGH(LCD_RD);
 
-	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
-
-	GPIOA->ODR |=  ((1<<4)&PORTAMSK_RS_W_R); //high RS
+	__HIGH(LCD_RD); //HIGH Read pin, this pin drives the IC, HIGH = send data, LOW = Receive data
+	GPIOB->ODR &=  ~((1<<0)); //LOW CS
+	GPIOA->ODR |=  ((1<<4)&PORTAMSK_RS_W_R); //high RS to send data
 	asm("nop");
-	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
-	volatile uint8_t j = (uint8_t)(i>>8);
+	//Transfer high byte
+	uint8_t hi = (uint8_t)(data>>8);
 	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-	GPIOB->ODR |=  ((j<<3)&0b11111111000); //DATA
+	GPIOB->ODR |=  ((hi<<3)&0b11111111000); //DATA
 	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
 	asm("nop");
 	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-	j = (uint8_t)(i);
+	//Transfer low byte
+	uint8_t lo = (uint8_t)(data);
 	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-	GPIOB->ODR |=  ((j<<3)&0b11111111000); //DATA
+	GPIOB->ODR |=  ((lo<<3)&0b11111111000); //DATA
 	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
 	asm("nop");
 	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
 	asm("nop");
 	//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
-
-
-	//GPIOA->ODR &=  ~(0xFF&0b0000000000010001); //CLEAR RS RD
-	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
+	GPIOA->ODR &=  ~(0xFF&0b0000000000010001); //CLEAR RS RD
+	GPIOB->ODR |=  ((1<<0)); //HIGH CS
 }
 uint16_t TFTReadData(const uint8_t data)
 {
