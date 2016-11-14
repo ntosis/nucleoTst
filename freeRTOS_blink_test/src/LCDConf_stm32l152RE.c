@@ -95,8 +95,8 @@ Purpose     : Display controller configuration (single layer)
 //
 // Physical display size
 //
-#define XSIZE_PHYS  128
-#define YSIZE_PHYS  160
+#define XSIZE_PHYS  50
+#define YSIZE_PHYS  50
 
 extern SPI_HandleTypeDef SpiHandle;
 
@@ -160,11 +160,15 @@ static void LCD_LL_Init(void);
 */
 static void LcdWriteReg(U16 Data)
 {
-       __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-       __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
-       HAL_SPI_Transmit(&SpiHandle,(U8*)&Data, 1,500);
-       __HIGH(LCD_ChipSelect);
-       __HIGH(LCD_CMD);
+	 __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+   	 __HIGH(LCD_WR);
+   	 __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
+   	 HAL_GPIO_WritePin(GPIOB,(Data<<3)&0b11111111000,SET);
+   	 asm("nop");
+   	 HAL_GPIO_WritePin(GPIOB,(Data<<3)&0b11111111000,RESET);
+   	 __HIGH(LCD_ChipSelect);
+   	 __LOW(LCD_WR);
+   	__HIGH(LCD_CMD);
 }
 
 /********************************************************************
@@ -176,10 +180,16 @@ static void LcdWriteReg(U16 Data)
 */
 static void LcdWriteData(U16 Data)
 {
-    __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-    __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
-    HAL_SPI_Transmit(&SpiHandle,(U8*)&Data, 1,500);
-    __HIGH(LCD_ChipSelect);
+	__LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
+	__HIGH(LCD_WR);
+	__HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
+	HAL_GPIO_WritePin(GPIOB,(Data<<3)&0b11111111000,SET);
+	asm("nop");
+	HAL_GPIO_WritePin(GPIOB,(Data<<3)&0b11111111000,RESET);
+	//GPIOA->BSRR = data & 0xff;
+	//HAL_GPIO_WritePin(GPIOA,(data),SET);
+	__LOW(LCD_WR);
+	__HIGH(LCD_ChipSelect);
 }
 
 /********************************************************************
@@ -193,7 +203,12 @@ static void LcdWriteDataMultiple(U16 *pData, int NumItems)
 {
    __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
    __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
-   HAL_SPI_Transmit(&SpiHandle,(U8*)pData, 2 * NumItems,500);
+   U8 data = (U8*)pData;
+   for(int i=0; i<(2 * NumItems); i++) {
+       HAL_GPIO_WritePin(GPIOB,(data<<3)&0b11111111000,SET);
+       	asm("nop");
+       HAL_GPIO_WritePin(GPIOB,(data<<3)&0b11111111000,RESET);
+   }
    __HIGH(LCD_ChipSelect);
 }
 
@@ -228,7 +243,7 @@ static void LcdReadDataMultiple(U16 *pData, int NumItems)
 static void LCD_LL_Init(void)
 {
 
-    TFTInit2();
+    TFTInit2_4Inch();
 
 }
 
@@ -270,7 +285,7 @@ void LCD_X_Config(void)
   PortAPI.pfWriteM16_A1 = LcdWriteDataMultiple;
   PortAPI.pfReadM16_A1  = LcdReadDataMultiple;
 // GUIDRV_FLEXCOLOR_F66709 for ili9163 https://www.segger.com/emwin-guidrv-flexcolor.html
-    GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66709, GUIDRV_FLEXCOLOR_M16C0B16);
+    GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66708, GUIDRV_FLEXCOLOR_M16C0B8);
 }
 
 /*********************************************************************

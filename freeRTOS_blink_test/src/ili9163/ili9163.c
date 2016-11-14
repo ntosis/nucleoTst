@@ -39,7 +39,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ili9163.h"
 extern SPI_HandleTypeDef SpiHandle;
-
+extern uint32_t SystemCoreClock;
 /** @addtogroup BSP
   * @{
   */
@@ -677,34 +677,156 @@ void TFTInit2()
 	Tick(50);
 
 }
+
+
+void DWT_Init(void)
+{
+  if (!(CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk))
+  {
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+  }
+}
+void delayUS(uint32_t us) {
+	volatile uint32_t counter = 7*us;
+	while(counter--);
+}
+uint32_t DWT_Get(void)
+{
+  return DWT->CYCCNT;
+}
+
+__inline uint8_t DWT_Compare(int32_t tp)
+{
+  return (((int32_t)DWT_Get() - tp) < 0);
+}
+
+void DWT_Delay(uint32_t us) // microseconds
+{
+  int32_t tp = DWT_Get() + us * (SystemCoreClock/1000000);
+  while (((int32_t)DWT_Get() - tp) < 0);
+}
+
+void TFTInit2_4Inch(void) {
+    __HIGH(LCD_Reset);
+    HAL_Delay(5);
+    __LOW(LCD_Reset);
+    HAL_Delay(5);
+    __HIGH(LCD_Reset);
+    TFTWriteCmd(0x00);
+    TFTWriteData(0x00);
+    TFTWriteData(0x00);
+    TFTWriteData(0x00);
+    TFTWriteData(0x00);
+    volatile static uint16_t a, d;
+    uint8_t size = sizeof(_regValues_big);
+          for (uint8_t i = 0; i < (size / 4); i++) {
+              a = (_regValues_big[i*2]);
+              d = (_regValues_big[i*2 + 1]);
+              if (a == 0x00FF) {
+                  HAL_Delay(d);
+              } else {
+        	  TFTWriteCmd(a>>8);
+        	  TFTWriteCmd(a);
+        	  TFTWriteData(d>>8);
+        	  TFTWriteData(d);
+              }
+  }
+
+
+}
 void Tick(uint16_t i)
 {
 	HAL_Delay(i);
 }
-void TFTWriteCmd(uint8_t command)
+void TFTWriteCmd(const uint16_t command)
 {
-	uint8_t i = 8;
 
-	 __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-	 __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
-	 HAL_SPI_Transmit(&SpiHandle,&command, 1,500);
-	__HIGH(LCD_ChipSelect);
-	__HIGH(LCD_CMD);
+	//__HIGH(LCD_RD);
+	volatile uint16_t  i = command;
+		//GPIOB->ODR &=  ~((1<<0)); //LOW CS
 
-	return;
+		GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
+		asm("nop");
+		//GPIOB->ODR &=  ~((1<<0)); //LOW CS
+		volatile uint8_t j = (uint8_t)(i>>8);
+		GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
+		GPIOB->ODR |=  ((j<<3)&0b11111111000); //DATA
+
+		GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
+		asm("nop");
+		GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
+
+		j = (uint8_t)(i);
+		GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
+		GPIOB->ODR |=  ((j<<3)&0b11111111000); //DATA
+		GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
+		asm("nop");
+		GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
+		//GPIOB->ODR |=  ((1<<0)); //HIGH CS
+		asm("nop");
+		//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
+
+		GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
+		//GPIOA->ODR &=  ~(0xFF&0b0000000000010001); //CLEAR RS RD
+		//GPIOB->ODR |=  ((1<<0)); //HIGH CS
 }
 
-void TFTWriteData(uint8_t data)
+void TFTWriteData(const uint16_t data)
 {
-	uint8_t i = 8;
+	volatile uint16_t  i = data;
+	 //__HIGH(LCD_RD);
 
-	__LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-	__HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
-	HAL_SPI_Transmit(&SpiHandle,&data, 1,500);
-	__HIGH(LCD_ChipSelect);
+	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
+
+	GPIOA->ODR |=  ((1<<4)&PORTAMSK_RS_W_R); //high RS
+	asm("nop");
+	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
+	volatile uint8_t j = (uint8_t)(i>>8);
+	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
+	GPIOB->ODR |=  ((j<<3)&0b11111111000); //DATA
+	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
+	asm("nop");
+	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
+	j = (uint8_t)(i);
+	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
+	GPIOB->ODR |=  ((j<<3)&0b11111111000); //DATA
+	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
+	asm("nop");
+	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
+	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
+	asm("nop");
+	//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
 
 
-	return;
+	//GPIOA->ODR &=  ~(0xFF&0b0000000000010001); //CLEAR RS RD
+	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
+}
+uint16_t TFTReadData(const uint8_t data)
+{
+	volatile uint8_t  i = data;
+	// __HIGH(LCD_RD);
+
+	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
+
+	GPIOA->ODR |=  ((1<<4)&PORTAMSK_RS_W_R); //high RS
+	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
+	asm("nop");
+	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
+	GPIOA->ODR &=  ~((1<<0)&PORTAMSK_RS_W_R); //LOW RD
+
+	uint16_t indata = GPIOB->IDR;//DATA
+	asm("nop");
+	GPIOA->ODR |=  ((1<<0)&PORTAMSK_RS_W_R); //HIGH RD
+	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
+	asm("nop");
+	//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
+
+	//GPIOB->ODR &=  ~(0xFF&0b11111111000); //Clear all data pins
+	//GPIOA->ODR &=  ~(0xFF&0b0000000000010010); //CLEAR RS WR
+	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
+	return indata;
 }
 void TFTSetWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
 {

@@ -37,7 +37,7 @@ Purpose     : Configures emWins abilities, fonts etc.
   * @attention
   *@attention
   *
-  * <h2><center>&copy; Copyright © 2016 STMicroelectronics International N.V. 
+  * <h2><center>&copy; Copyright ï¿½ 2016 STMicroelectronics International N.V. 
   * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -81,8 +81,9 @@ Purpose     : Configures emWins abilities, fonts etc.
 *
 *       Multi layer/display support
 */
-#define GUI_NUM_LAYERS            2    // Maximum number of available layers
 
+#define GUI_NUM_LAYERS            2    // Maximum number of available layers
+#define OS_SUPPORT 1
 /*********************************************************************
 *
 *       Multi tasking support

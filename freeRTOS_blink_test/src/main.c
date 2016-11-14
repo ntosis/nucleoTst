@@ -83,13 +83,62 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
   /* Configure the system clock */
   SystemClock_Config();
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  initTempSens();
+  //initTempSens();
+  __HIGH(LCD_RD);
+  __HIGH(LCD_Reset);
+     HAL_Delay(100);
+  __LOW(LCD_Reset);
+     HAL_Delay(100);
+  __HIGH(LCD_Reset);
+  GPIOB->ODR &=  ~((1<<0)); //LOW CS
+ /* TFTWriteCmd(0x00);
+  TFTWriteCmd(0x00);
+  //TFTWriteCmd(0x00);
+  //TFTWriteCmd(0x00);
+  //TFTWriteCmd(0x00);
+  HAL_Delay(10);
+  for(int j=0; j<50; j++) {
+
+  TFTWriteCmd(1);
+  TFTWriteData(1);
+  HAL_Delay(10);
+  //TFTWriteData(0x9D);
+  //TFTWriteCmd(0x00);
+  TFTWriteCmd(0);
+  //make GPIOB Input
+  GPIOB->MODER &=  ~(0b00000000001111111111111111000000);
+  volatile uint16_t i = TFTReadData();
+  volatile uint16_t ii = TFTReadData();
+  volatile uint16_t id = ((i&0b11111111000)<<5)|((ii&0b11111111000)>>3);
+  GPIOB->MODER &=  ~(0b00000000000101010101010101000000);
+  } */
+  TFTInit2_4Inch();
+    TFTWriteCmd(0x20);
+    TFTWriteData(50);
+    TFTWriteCmd(0x21);
+    TFTWriteData(50);
+    TFTWriteCmd(0x22);
+    TFTWriteData(0xfc);
+    TFTWriteCmd(0x20);
+    TFTWriteData(51);
+    TFTWriteCmd(0x21);
+    TFTWriteData(51);
+    TFTWriteCmd(0x22);
+    TFTWriteData(0xfc);
+    TFTWriteCmd(0x20);
+    TFTWriteData(52);
+    TFTWriteCmd(0x21);
+    TFTWriteData(52);
+    TFTWriteCmd(0x22);
+    TFTWriteData(0xfc);
+  GPIOB->ODR |=  ((1<<0)); //high CS
+  __LOW(LCD_RD);
+
   //TFTInit2();
 
   //HAL_MspInit();
