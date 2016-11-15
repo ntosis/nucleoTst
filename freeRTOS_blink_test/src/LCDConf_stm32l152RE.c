@@ -160,15 +160,7 @@ static void LCD_LL_Init(void);
 */
 static void LcdWriteReg(U16 Data)
 {
-	 __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-   	 __HIGH(LCD_WR);
-   	 __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
-   	 HAL_GPIO_WritePin(GPIOB,(Data<<3)&0b11111111000,SET);
-   	 asm("nop");
-   	 HAL_GPIO_WritePin(GPIOB,(Data<<3)&0b11111111000,RESET);
-   	 __HIGH(LCD_ChipSelect);
-   	 __LOW(LCD_WR);
-   	__HIGH(LCD_CMD);
+    TFTWriteCmd(Data);
 }
 
 /********************************************************************
@@ -180,16 +172,8 @@ static void LcdWriteReg(U16 Data)
 */
 static void LcdWriteData(U16 Data)
 {
-	__LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-	__HIGH(LCD_WR);
-	__HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
-	HAL_GPIO_WritePin(GPIOB,(Data<<3)&0b11111111000,SET);
-	asm("nop");
-	HAL_GPIO_WritePin(GPIOB,(Data<<3)&0b11111111000,RESET);
-	//GPIOA->BSRR = data & 0xff;
-	//HAL_GPIO_WritePin(GPIOA,(data),SET);
-	__LOW(LCD_WR);
-	__HIGH(LCD_ChipSelect);
+    TFTWriteData(Data);
+
 }
 
 /********************************************************************
@@ -201,15 +185,11 @@ static void LcdWriteData(U16 Data)
 */
 static void LcdWriteDataMultiple(U16 *pData, int NumItems)
 {
-   __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-   __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
-   U8 data = (U8*)pData;
-   for(int i=0; i<(2 * NumItems); i++) {
-       HAL_GPIO_WritePin(GPIOB,(data<<3)&0b11111111000,SET);
-       	asm("nop");
-       HAL_GPIO_WritePin(GPIOB,(data<<3)&0b11111111000,RESET);
+
+   U16 Data = (U16*)pData;
+   for(int i=0; i<(NumItems); i++) {
+       TFTWriteData(Data);
    }
-   __HIGH(LCD_ChipSelect);
 }
 
 /********************************************************************
