@@ -189,6 +189,56 @@
 #define  LCD_REG_224             0xE0 /* Set Gamma adjustment (+ polarity): GAMCTRP1 */
 #define  LCD_REG_225             0xE1 /* Set Gamma adjustment (- polarity): GAMCTRN1 */
 
+#define ILI932X_START_OSC          0x00
+#define ILI932X_DRIV_OUT_CTRL      0x01
+#define ILI932X_DRIV_WAV_CTRL      0x02
+#define ILI932X_ENTRY_MOD          0x03
+#define ILI932X_RESIZE_CTRL        0x04
+#define ILI932X_DISP_CTRL1         0x07
+#define ILI932X_DISP_CTRL2         0x08
+#define ILI932X_DISP_CTRL3         0x09
+#define ILI932X_DISP_CTRL4         0x0A
+#define ILI932X_RGB_DISP_IF_CTRL1  0x0C
+#define ILI932X_FRM_MARKER_POS     0x0D
+#define ILI932X_RGB_DISP_IF_CTRL2  0x0F
+#define ILI932X_POW_CTRL1          0x10
+#define ILI932X_POW_CTRL2          0x11
+#define ILI932X_POW_CTRL3          0x12
+#define ILI932X_POW_CTRL4          0x13
+#define ILI932X_GRAM_HOR_AD        0x20
+#define ILI932X_GRAM_VER_AD        0x21
+#define ILI932X_RW_GRAM            0x22
+#define ILI932X_POW_CTRL7          0x29
+#define ILI932X_FRM_RATE_COL_CTRL  0x2B
+#define ILI932X_GAMMA_CTRL1        0x30
+#define ILI932X_GAMMA_CTRL2        0x31
+#define ILI932X_GAMMA_CTRL3        0x32
+#define ILI932X_GAMMA_CTRL4        0x35
+#define ILI932X_GAMMA_CTRL5        0x36
+#define ILI932X_GAMMA_CTRL6        0x37
+#define ILI932X_GAMMA_CTRL7        0x38
+#define ILI932X_GAMMA_CTRL8        0x39
+#define ILI932X_GAMMA_CTRL9        0x3C
+#define ILI932X_GAMMA_CTRL10       0x3D
+#define ILI932X_HOR_START_AD       0x50
+#define ILI932X_HOR_END_AD         0x51
+#define ILI932X_VER_START_AD       0x52
+#define ILI932X_VER_END_AD         0x53
+#define ILI932X_GATE_SCAN_CTRL1    0x60
+#define ILI932X_GATE_SCAN_CTRL2    0x61
+#define ILI932X_GATE_SCAN_CTRL3    0x6A
+#define ILI932X_PART_IMG1_DISP_POS 0x80
+#define ILI932X_PART_IMG1_START_AD 0x81
+#define ILI932X_PART_IMG1_END_AD   0x82
+#define ILI932X_PART_IMG2_DISP_POS 0x83
+#define ILI932X_PART_IMG2_START_AD 0x84
+#define ILI932X_PART_IMG2_END_AD   0x85
+#define ILI932X_PANEL_IF_CTRL1     0x90
+#define ILI932X_PANEL_IF_CTRL2     0x92
+#define ILI932X_PANEL_IF_CTRL3     0x93
+#define ILI932X_PANEL_IF_CTRL4     0x95
+#define ILI932X_PANEL_IF_CTRL5     0x97
+#define ILI932X_PANEL_IF_CTRL6 0x98
 /**
   * @brief  LCD Lines depending on the chosen fonts.
   */
@@ -462,7 +512,60 @@ static const uint8_t
       10,                     //     10 ms delay
     ST7735_DISPON ,    DELAY, //  4: Main screen turn on, no args w/delay
 100 }; //     100 ms delay
-
+#define TFTLCD_DELAY 0xFF
+static const uint16_t _regValues_big[] = {
+	  ILI932X_START_OSC        , 0x0001, // Start oscillator
+	  TFTLCD_DELAY             , 50,     // 50 millisecond delay
+	  ILI932X_DRIV_OUT_CTRL    , 0x0100,
+	  ILI932X_DRIV_WAV_CTRL    , 0x0700,
+	  ILI932X_ENTRY_MOD        , 0x1030,
+	  ILI932X_RESIZE_CTRL      , 0x0000,
+	  ILI932X_DISP_CTRL2       , 0x0202,
+	  ILI932X_DISP_CTRL3       , 0x0000,
+	  ILI932X_DISP_CTRL4       , 0x0000,
+	  ILI932X_RGB_DISP_IF_CTRL1, 0x0,
+	  ILI932X_FRM_MARKER_POS   , 0x0,
+	  ILI932X_RGB_DISP_IF_CTRL2, 0x0,
+	  ILI932X_POW_CTRL1        , 0x0000,
+	  ILI932X_POW_CTRL2        , 0x0007,
+	  ILI932X_POW_CTRL3        , 0x0000,
+	  ILI932X_POW_CTRL4        , 0x0000,
+	  TFTLCD_DELAY             , 200,
+	  ILI932X_POW_CTRL1        , 0x1690,
+	  ILI932X_POW_CTRL2        , 0x0227,
+	  TFTLCD_DELAY             , 50,
+	  ILI932X_POW_CTRL3        , 0x001A,
+	  TFTLCD_DELAY             , 50,
+	  ILI932X_POW_CTRL4        , 0x1800,
+	  ILI932X_POW_CTRL7        , 0x002A,
+	  TFTLCD_DELAY             , 50,
+	  ILI932X_GAMMA_CTRL1      , 0x0000,
+	  ILI932X_GAMMA_CTRL2      , 0x0000,
+	  ILI932X_GAMMA_CTRL3      , 0x0000,
+	  ILI932X_GAMMA_CTRL4      , 0x0206,
+	  ILI932X_GAMMA_CTRL5      , 0x0808,
+	  ILI932X_GAMMA_CTRL6      , 0x0007,
+	  ILI932X_GAMMA_CTRL7      , 0x0201,
+	  ILI932X_GAMMA_CTRL8      , 0x0000,
+	  ILI932X_GAMMA_CTRL9      , 0x0000,
+	  ILI932X_GAMMA_CTRL10     , 0x0000,
+	  ILI932X_GRAM_HOR_AD      , 0x0000,
+	  ILI932X_GRAM_VER_AD      , 0x0000,
+	  ILI932X_HOR_START_AD     , 0x0000,
+	  ILI932X_HOR_END_AD       , 0x00EF,
+	  ILI932X_VER_START_AD     , 0X0000,
+	  ILI932X_VER_END_AD       , 0x013F,
+	  ILI932X_GATE_SCAN_CTRL1  , 0xA700, // Driver Output Control (R60h)
+	  ILI932X_GATE_SCAN_CTRL2  , 0x0003, // Driver Output Control (R61h)
+	  ILI932X_GATE_SCAN_CTRL3  , 0x0000, // Driver Output Control (R62h)
+	  ILI932X_PANEL_IF_CTRL1   , 0X0010, // Panel Interface Control 1 (R90h)
+	  ILI932X_PANEL_IF_CTRL2   , 0X0000,
+	  ILI932X_PANEL_IF_CTRL3   , 0X0003,
+	  ILI932X_PANEL_IF_CTRL4   , 0X1100,
+	  ILI932X_PANEL_IF_CTRL5   , 0X0000,
+	  ILI932X_PANEL_IF_CTRL6   , 0X0000,
+	ILI932X_DISP_CTRL1 , 0x0133, // Main screen turn on
+};
 
 #ifdef __cplusplus
 }

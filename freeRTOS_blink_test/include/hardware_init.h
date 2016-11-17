@@ -28,10 +28,20 @@
 //#define __READ(pin)           _GET(PIN,pin)
 
 // Set Pins
-#define LCD_ChipSelect B,5   //Temperature slave select Pin, Arduino connector D5
-#define LCD_CMD A,8
+#define LCD_ChipSelect B,0
+#define LCD_CMD A,4
 #define TempSensor_SS B,4
 #define LCD_Reset A,10
+#define LCD_WR A,1
+#define LCD_RD A,0
+#define PORTAMSK_RS_W_R 0b0000000000010011
+/*
+ * //2.4 Inches Display
+#define LCD_CS A3
+#define LCD_CD A2
+#define LCD_WR A1
+#define LCD_RD A0
+*/
 
 void MX_GPIO_Init(void);
 

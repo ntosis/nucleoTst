@@ -95,8 +95,8 @@ Purpose     : Display controller configuration (single layer)
 //
 // Physical display size
 //
-#define XSIZE_PHYS  128
-#define YSIZE_PHYS  160
+#define XSIZE_PHYS  240
+#define YSIZE_PHYS  320
 
 extern SPI_HandleTypeDef SpiHandle;
 
@@ -160,11 +160,7 @@ static void LCD_LL_Init(void);
 */
 static void LcdWriteReg(U16 Data)
 {
-       __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-       __LOW(LCD_CMD); //LCD_CMD pin = LOW = Send Command
-       HAL_SPI_Transmit(&SpiHandle,(U8*)&Data, 1,500);
-       __HIGH(LCD_ChipSelect);
-       __HIGH(LCD_CMD);
+       TFTWriteCmd(Data);
 }
 
 /********************************************************************
@@ -176,10 +172,7 @@ static void LcdWriteReg(U16 Data)
 */
 static void LcdWriteData(U16 Data)
 {
-    __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-    __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
-    HAL_SPI_Transmit(&SpiHandle,(U8*)&Data, 1,500);
-    __HIGH(LCD_ChipSelect);
+    TFTWriteData(Data);
 }
 
 /********************************************************************
@@ -191,10 +184,11 @@ static void LcdWriteData(U16 Data)
 */
 static void LcdWriteDataMultiple(U16 *pData, int NumItems)
 {
-   __LOW(LCD_ChipSelect); //THIS IS D5 arduino like pin, hier is used as CS for the LCD. CS =LOW=LISTEN
-   __HIGH(LCD_CMD); //LCD_CMD pin = HIGH = Send Data
-   HAL_SPI_Transmit(&SpiHandle,(U8*)pData, 2 * NumItems,500);
-   __HIGH(LCD_ChipSelect);
+
+    U16 Data = (U16*)pData;
+    for(int i=0; i<(NumItems); i++) {
+        TFTWriteData(Data);
+    }
 }
 
 /********************************************************************
@@ -228,7 +222,7 @@ static void LcdReadDataMultiple(U16 *pData, int NumItems)
 static void LCD_LL_Init(void)
 {
 
-    TFTInit2();
+    TFTInit2_4Inch();
 
 }
 
@@ -269,8 +263,8 @@ void LCD_X_Config(void)
   PortAPI.pfWrite16_A1  = LcdWriteData;
   PortAPI.pfWriteM16_A1 = LcdWriteDataMultiple;
   PortAPI.pfReadM16_A1  = LcdReadDataMultiple;
-// GUIDRV_FLEXCOLOR_F66709 for ili9163 https://www.segger.com/emwin-guidrv-flexcolor.html
-    GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66709, GUIDRV_FLEXCOLOR_M16C0B16);
+// GUIDRV_FLEXCOLOR_F66708 for ili9325 https://www.segger.com/emwin-guidrv-flexcolor.html
+    GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66708, GUIDRV_FLEXCOLOR_M16C0B16);
 }
 
 /*********************************************************************
