@@ -125,109 +125,6 @@ static uint16_t ArrayRGB[320] = {0};
   */
 void st7735_Init(void)
 {
-  uint8_t data = 0;
-
-  /* Initialize ST7735 low level bus layer -----------------------------------*/
-  /* Out of sleep mode, 0 args, no delay */
-  st7735_WriteReg(LCD_REG_17, 0x00);
-  /* Frame rate ctrl - normal mode, 3 args:Rate = fosc/(1x2+40) * (LINE+2C+2D)*/
-  LCD_IO_WriteReg(LCD_REG_177);
-  data = 0x01;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = 0x2C;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = 0x2D;
-  LCD_IO_WriteMultipleData(&data, 1);
-  /* Frame rate control - idle mode, 3 args:Rate = fosc/(1x2+40) * (LINE+2C+2D) */
-  st7735_WriteReg(LCD_REG_178, 0x01);
-  st7735_WriteReg(LCD_REG_178, 0x2C);
-  st7735_WriteReg(LCD_REG_178, 0x2D);
-  /* Frame rate ctrl - partial mode, 6 args: Dot inversion mode, Line inversion mode */
-  st7735_WriteReg(LCD_REG_179, 0x01);
-  st7735_WriteReg(LCD_REG_179, 0x2C);
-  st7735_WriteReg(LCD_REG_179, 0x2D);
-  st7735_WriteReg(LCD_REG_179, 0x01);
-  st7735_WriteReg(LCD_REG_179, 0x2C);
-  st7735_WriteReg(LCD_REG_179, 0x2D);
-  /* Display inversion ctrl, 1 arg, no delay: No inversion */
-  st7735_WriteReg(LCD_REG_180, 0x07);
-  /* Power control, 3 args, no delay: -4.6V , AUTO mode */
-  st7735_WriteReg(LCD_REG_192, 0xA2);
-  st7735_WriteReg(LCD_REG_192, 0x02);
-  st7735_WriteReg(LCD_REG_192, 0x84);
-  /* Power control, 1 arg, no delay: VGH25 = 2.4C VGSEL = -10 VGH = 3 * AVDD */
-  st7735_WriteReg(LCD_REG_193, 0xC5);
-  /* Power control, 2 args, no delay: Opamp current small, Boost frequency */
-  st7735_WriteReg(LCD_REG_194, 0x0A);
-  st7735_WriteReg(LCD_REG_194, 0x00);
-  /* Power control, 2 args, no delay: BCLK/2, Opamp current small & Medium low */
-  st7735_WriteReg(LCD_REG_195, 0x8A);
-  st7735_WriteReg(LCD_REG_195, 0x2A);
-  /* Power control, 2 args, no delay */
-  st7735_WriteReg(LCD_REG_196, 0x8A);
-  st7735_WriteReg(LCD_REG_196, 0xEE);
-  /* Power control, 1 arg, no delay */
-  st7735_WriteReg(LCD_REG_197, 0x0E);
-  /* Don't invert display, no args, no delay */
-  LCD_IO_WriteReg(LCD_REG_32);
-  /* Set color mode, 1 arg, no delay: 16-bit color */
-  st7735_WriteReg(LCD_REG_58, 0x05);
-  /* Column addr set, 4 args, no delay: XSTART = 0, XEND = 127 */
-  LCD_IO_WriteReg(LCD_REG_42);
-  data = 0x00;
-  LCD_IO_WriteMultipleData(&data, 1);
-  LCD_IO_WriteMultipleData(&data, 1);
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = 0x7F;
-  LCD_IO_WriteMultipleData(&data, 1);
-  /* Row addr set, 4 args, no delay: YSTART = 0, YEND = 127 */
-  LCD_IO_WriteReg(LCD_REG_43);
-  data = 0x00;
-  LCD_IO_WriteMultipleData(&data, 1);
-  LCD_IO_WriteMultipleData(&data, 1);
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = 0x7F;
-  LCD_IO_WriteMultipleData(&data, 1);
-  /* Magical unicorn dust, 16 args, no delay */
-  st7735_WriteReg(LCD_REG_224, 0x02);
-  st7735_WriteReg(LCD_REG_224, 0x1c);
-  st7735_WriteReg(LCD_REG_224, 0x07);
-  st7735_WriteReg(LCD_REG_224, 0x12);
-  st7735_WriteReg(LCD_REG_224, 0x37);
-  st7735_WriteReg(LCD_REG_224, 0x32);
-  st7735_WriteReg(LCD_REG_224, 0x29);
-  st7735_WriteReg(LCD_REG_224, 0x2d);
-  st7735_WriteReg(LCD_REG_224, 0x29);
-  st7735_WriteReg(LCD_REG_224, 0x25);
-  st7735_WriteReg(LCD_REG_224, 0x2B);
-  st7735_WriteReg(LCD_REG_224, 0x39);
-  st7735_WriteReg(LCD_REG_224, 0x00);
-  st7735_WriteReg(LCD_REG_224, 0x01);
-  st7735_WriteReg(LCD_REG_224, 0x03);
-  st7735_WriteReg(LCD_REG_224, 0x10);
-  /* Sparkles and rainbows, 16 args, no delay */
-  st7735_WriteReg(LCD_REG_225, 0x03);
-  st7735_WriteReg(LCD_REG_225, 0x1d);
-  st7735_WriteReg(LCD_REG_225, 0x07);
-  st7735_WriteReg(LCD_REG_225, 0x06);
-  st7735_WriteReg(LCD_REG_225, 0x2E);
-  st7735_WriteReg(LCD_REG_225, 0x2C);
-  st7735_WriteReg(LCD_REG_225, 0x29);
-  st7735_WriteReg(LCD_REG_225, 0x2D);
-  st7735_WriteReg(LCD_REG_225, 0x2E);
-  st7735_WriteReg(LCD_REG_225, 0x2E);
-  st7735_WriteReg(LCD_REG_225, 0x37);
-  st7735_WriteReg(LCD_REG_225, 0x3F);
-  st7735_WriteReg(LCD_REG_225, 0x00);
-  st7735_WriteReg(LCD_REG_225, 0x00);
-  st7735_WriteReg(LCD_REG_225, 0x02);
-  st7735_WriteReg(LCD_REG_225, 0x10);
-  /* Normal display on, no args, no delay */
-  st7735_WriteReg(LCD_REG_19, 0x00);
-  /* Main screen turn on, no delay */
-  st7735_WriteReg(LCD_REG_41, 0x00);
-  /* Memory access control: MY = 1, MX = 1, MV = 0, ML = 0 */
-  st7735_WriteReg(LCD_REG_54, 0xC0);
 }
 
 /**
@@ -272,18 +169,6 @@ void st7735_DisplayOff(void)
   */
 void st7735_SetCursor(uint16_t Xpos, uint16_t Ypos)
 {
-  uint8_t data = 0;
-  LCD_IO_WriteReg(LCD_REG_42);
-  data = (Xpos) >> 8;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = (Xpos) & 0xFF;
-  LCD_IO_WriteMultipleData(&data, 1);
-  LCD_IO_WriteReg(LCD_REG_43);
-  data = (Ypos) >> 8;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = (Ypos) & 0xFF;
-  LCD_IO_WriteMultipleData(&data, 1);
-  LCD_IO_WriteReg(LCD_REG_44);
 }
 
 /**
@@ -402,27 +287,6 @@ void initR() {
   */
 void st7735_SetDisplayWindow(uint16_t Xpos, uint16_t Ypos, uint16_t Width, uint16_t Height)
 {
-  uint8_t data = 0;
-  /* Column addr set, 4 args, no delay: XSTART = Xpos, XEND = (Xpos + Width - 1) */
-  LCD_IO_WriteReg(LCD_REG_42);
-  data = (Xpos) >> 8;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = (Xpos) & 0xFF;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = (Xpos + Width - 1) >> 8;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = (Xpos + Width - 1) & 0xFF;
-  LCD_IO_WriteMultipleData(&data, 1);
-  /* Row addr set, 4 args, no delay: YSTART = Ypos, YEND = (Ypos + Height - 1) */
-  LCD_IO_WriteReg(LCD_REG_43);
-  data = (Ypos) >> 8;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = (Ypos) & 0xFF;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = (Ypos + Height - 1) >> 8;
-  LCD_IO_WriteMultipleData(&data, 1);
-  data = (Ypos + Height - 1) & 0xFF;
-  LCD_IO_WriteMultipleData(&data, 1);
 }
 
 /**
@@ -778,11 +642,11 @@ void TFTSetWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
 	TFTWriteData(0x00);
 	TFTWriteData(y1);          /* Y end */
 }
-uint16_t TFTReadData(const uint8_t data)
+uint16_t TFTReadData()
 {
-	volatile uint8_t  i = data;
-	// __HIGH(LCD_RD);
-
+	//volatile uint8_t  i = data;
+	__HIGH(LCD_RD);
+	GPIOB->MODER &=  ~(0b00000000001111111111111111000000);
 	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
 
 	GPIOA->ODR |=  ((1<<4)&PORTAMSK_RS_W_R); //high RS
@@ -791,16 +655,25 @@ uint16_t TFTReadData(const uint8_t data)
 	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
 	GPIOA->ODR &=  ~((1<<0)&PORTAMSK_RS_W_R); //LOW RD
 
-	uint16_t indata = GPIOB->IDR;//DATA
+	uint16_t hi = GPIOB->IDR;//DATA
 	asm("nop");
 	GPIOA->ODR |=  ((1<<0)&PORTAMSK_RS_W_R); //HIGH RD
 	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
 	asm("nop");
+	GPIOA->ODR &=  ~((1<<0)&PORTAMSK_RS_W_R); //LOW RD
+
+	uint16_t lo = GPIOB->IDR;//DATA
+	asm("nop");
+	GPIOA->ODR |=  ((1<<0)&PORTAMSK_RS_W_R); //HIGH RD
 	//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
 
 	//GPIOB->ODR &=  ~(0xFF&0b11111111000); //Clear all data pins
 	//GPIOA->ODR &=  ~(0xFF&0b0000000000010010); //CLEAR RS WR
 	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
+	GPIOB->MODER |= 0b0101010101010101000000;
+
+	uint16_t indata = ((hi&0b11111111000)<<5)|((lo&0b11111111000)>>3);
+
 	return indata;
 }
 void TFTPixel(uint16_t x, uint16_t y, uint16_t color)

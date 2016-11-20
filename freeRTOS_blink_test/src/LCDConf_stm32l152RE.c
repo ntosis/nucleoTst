@@ -202,8 +202,8 @@ static void LcdReadDataMultiple(U16 *pData, int NumItems)
 {
   while (NumItems--)
   {
-    //*pData++ = LCD_IO_ReadData();
-    while (1);
+    *pData++ = TFTReadData();
+    //while (1);
   }
 }
 
@@ -253,7 +253,7 @@ void LCD_X_Config(void)
   // Orientation
   //
 
-    Config.Orientation = GUI_SWAP_XY|GUI_MIRROR_Y;//|   GUI_MIRROR_X;
+    Config.Orientation = GUI_SWAP_XY |GUI_MIRROR_Y ;//| GUI_MIRROR_Y;
 
   GUIDRV_FlexColor_Config(pDevice, &Config);
   //

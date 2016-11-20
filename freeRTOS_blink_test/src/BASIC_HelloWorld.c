@@ -35,12 +35,25 @@ static BUTTON_Handle hButton;
 *       MainTask
 */
 void MainTask(void) {
-  GUI_Clear();
-  GUI_SetFont(&GUI_Font20_1);
-  GUI_SetTextMode(GUI_TM_TRANS);
-  hButton = BUTTON_Create(10,10,50,15,GUI_ID_OK,WM_CF_SHOW);
-  BUTTON_SetText(hButton,"Test");
-  GUI_Exec();
+    GUI_SetFont(&GUI_Font8x16);
+    GUI_SetBkColor(GUI_BLUE);
+    GUI_Clear();
+    GUI_SetPenSize(10);
+    GUI_SetColor(GUI_BLACK);
+    GUI_DrawLine(50, 0, 150, 150);
+    GUI_DrawLine(50, 0, 150, 150);
+    GUI_SetBkColor(GUI_WHITE);
+    GUI_SetColor(GUI_BLUE);
+    GUI_SetTextMode(GUI_TM_NORMAL);
+    GUI_DispStringHCenterAt("GUI_TM_NORMAL" , 50, 0);
+    GUI_SetTextMode(GUI_TM_REV);
+    GUI_DispStringHCenterAt("GUI_TM_REV" , 50, 26);
+    GUI_SetTextMode(GUI_TM_TRANS);
+    GUI_DispStringHCenterAt("GUI_TM_TRANS" , 50, 42);
+    GUI_SetTextMode(GUI_TM_XOR);
+    GUI_DispStringHCenterAt("GUI_TM_XOR" , 50, 58);
+    GUI_SetTextMode(GUI_TM_TRANS | GUI_TM_REV);
+    GUI_DispStringHCenterAt("GUI_TM_TRANS | GUI_TM_REV", 50, 74);
   while(1);
 }
 
