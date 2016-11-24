@@ -137,58 +137,115 @@
 /**
   * @brief  ST7735 Registers
   */
-#define  LCD_REG_0               0x00 /* No Operation: NOP */
-#define  LCD_REG_1               0x01 /* Software reset: SWRESET */
-#define  LCD_REG_4               0x04 /* Read Display ID: RDDID */
-#define  LCD_REG_9               0x09 /* Read Display Statu: RDDST */
-#define  LCD_REG_10              0x0A /* Read Display Power: RDDPM */
-#define  LCD_REG_11              0x0B /* Read Display: RDDMADCTL */
-#define  LCD_REG_12              0x0C /* Read Display Pixel: RDDCOLMOD */
-#define  LCD_REG_13              0x0D /* Read Display Image: RDDIM */
-#define  LCD_REG_14              0x0E /* Read Display Signal: RDDSM */
-#define  LCD_REG_16              0x10 /* Sleep in & booster off: SLPIN */
-#define  LCD_REG_17              0x11 /* Sleep out & booster on: SLPOUT */
-#define  LCD_REG_18              0x12 /* Partial mode on: PTLON */
-#define  LCD_REG_19              0x13 /* Partial off (Normal): NORON */
-#define  LCD_REG_32              0x20 /* Display inversion off: INVOFF */
-#define  LCD_REG_33              0x21 /* Display inversion on: INVON */
-#define  LCD_REG_38              0x26 /* Gamma curve select: GAMSET */
-#define  LCD_REG_40              0x28 /* Display off: DISPOFF */
-#define  LCD_REG_41              0x29 /* Display on: DISPON */
-#define  LCD_REG_42              0x2A /* Column address set: CASET */
-#define  LCD_REG_43              0x2B /* Row address set: RASET */
-#define  LCD_REG_44              0x2C /* Memory write: RAMWR */
-#define  LCD_REG_45              0x2D /* LUT for 4k,65k,262k color: RGBSET */
-#define  LCD_REG_46              0x2E /* Memory read: RAMRD*/
-#define  LCD_REG_48              0x30 /* Partial start/end address set: PTLAR */
-#define  LCD_REG_52              0x34 /* Tearing effect line off: TEOFF */
-#define  LCD_REG_53              0x35 /* Tearing effect mode set & on: TEON */
-#define  LCD_REG_54              0x36 /* Memory data access control: MADCTL */
-#define  LCD_REG_56              0x38 /* Idle mode off: IDMOFF */
-#define  LCD_REG_57              0x39 /* Idle mode on: IDMON */
-#define  LCD_REG_58              0x3A /* Interface pixel format: COLMOD */
-#define  LCD_REG_177             0xB1 /* In normal mode (Full colors): FRMCTR1 */
-#define  LCD_REG_178             0xB2 /* In Idle mode (8-colors): FRMCTR2 */
-#define  LCD_REG_179             0xB3 /* In partial mode + Full colors: FRMCTR3 */
-#define  LCD_REG_180             0xB4 /* Display inversion control: INVCTR */
-#define  LCD_REG_192             0xC0 /* Power control setting: PWCTR1 */
-#define  LCD_REG_193             0xC1 /* Power control setting: PWCTR2 */
-#define  LCD_REG_194             0xC2 /* In normal mode (Full colors): PWCTR3 */
-#define  LCD_REG_195             0xC3 /* In Idle mode (8-colors): PWCTR4 */
-#define  LCD_REG_196             0xC4 /* In partial mode + Full colors: PWCTR5 */
-#define  LCD_REG_197             0xC5 /* VCOM control 1: VMCTR1 */
-#define  LCD_REG_199             0xC7 /* Set VCOM offset control: VMOFCTR */
-#define  LCD_REG_209             0xD1 /* Set LCM version code: WRID2 */
-#define  LCD_REG_210             0xD2 /* Customer Project code: WRID3 */
-#define  LCD_REG_217             0xD9 /* NVM control status: NVCTR1 */
-#define  LCD_REG_218             0xDA /* Read ID1: RDID1 */
-#define  LCD_REG_219             0xDB /* Read ID2: RDID2 */
-#define  LCD_REG_220             0xDC /* Read ID3: RDID3 */
-#define  LCD_REG_222             0xDE /* NVM Read Command: NVCTR2 */
-#define  LCD_REG_223             0xDF /* NVM Write Command: NVCTR3 */
-#define  LCD_REG_224             0xE0 /* Set Gamma adjustment (+ polarity): GAMCTRP1 */
-#define  LCD_REG_225             0xE1 /* Set Gamma adjustment (- polarity): GAMCTRN1 */
-
+#define LCD_REG_0             0x00
+#define LCD_REG_1             0x01
+#define LCD_REG_2             0x02
+#define LCD_REG_3             0x03
+#define LCD_REG_4             0x04
+#define LCD_REG_5             0x05
+#define LCD_REG_6             0x06
+#define LCD_REG_7             0x07
+#define LCD_REG_8             0x08
+#define LCD_REG_9             0x09
+#define LCD_REG_10            0x0A
+#define LCD_REG_12            0x0C
+#define LCD_REG_13            0x0D
+#define LCD_REG_14            0x0E
+#define LCD_REG_15            0x0F
+#define LCD_REG_16            0x10
+#define LCD_REG_17            0x11
+#define LCD_REG_18            0x12
+#define LCD_REG_19            0x13
+#define LCD_REG_20            0x14
+#define LCD_REG_21            0x15
+#define LCD_REG_22            0x16
+#define LCD_REG_23            0x17
+#define LCD_REG_24            0x18
+#define LCD_REG_25            0x19
+#define LCD_REG_26            0x1A
+#define LCD_REG_27            0x1B
+#define LCD_REG_28            0x1C
+#define LCD_REG_29            0x1D
+#define LCD_REG_30            0x1E
+#define LCD_REG_31            0x1F
+#define LCD_REG_32            0x20
+#define LCD_REG_33            0x21
+#define LCD_REG_34            0x22
+#define LCD_REG_36            0x24
+#define LCD_REG_37            0x25
+#define LCD_REG_40            0x28
+#define LCD_REG_41            0x29
+#define LCD_REG_43            0x2B
+#define LCD_REG_45            0x2D
+#define LCD_REG_48            0x30
+#define LCD_REG_49            0x31
+#define LCD_REG_50            0x32
+#define LCD_REG_51            0x33
+#define LCD_REG_52            0x34
+#define LCD_REG_53            0x35
+#define LCD_REG_54            0x36
+#define LCD_REG_55            0x37
+#define LCD_REG_56            0x38
+#define LCD_REG_57            0x39
+#define LCD_REG_58            0x3A
+#define LCD_REG_59            0x3B
+#define LCD_REG_60            0x3C
+#define LCD_REG_61            0x3D
+#define LCD_REG_62            0x3E
+#define LCD_REG_63            0x3F
+#define LCD_REG_64            0x40
+#define LCD_REG_65            0x41
+#define LCD_REG_66            0x42
+#define LCD_REG_67            0x43
+#define LCD_REG_68            0x44
+#define LCD_REG_69            0x45
+#define LCD_REG_70            0x46
+#define LCD_REG_71            0x47
+#define LCD_REG_72            0x48
+#define LCD_REG_73            0x49
+#define LCD_REG_74            0x4A
+#define LCD_REG_75            0x4B
+#define LCD_REG_76            0x4C
+#define LCD_REG_77            0x4D
+#define LCD_REG_78            0x4E
+#define LCD_REG_79            0x4F
+#define LCD_REG_80            0x50
+#define LCD_REG_81            0x51
+#define LCD_REG_82            0x52
+#define LCD_REG_83            0x53
+#define LCD_REG_96            0x60
+#define LCD_REG_97            0x61
+#define LCD_REG_106           0x6A
+#define LCD_REG_118           0x76
+#define LCD_REG_128           0x80
+#define LCD_REG_129           0x81
+#define LCD_REG_130           0x82
+#define LCD_REG_131           0x83
+#define LCD_REG_132           0x84
+#define LCD_REG_133           0x85
+#define LCD_REG_134           0x86
+#define LCD_REG_135           0x87
+#define LCD_REG_136           0x88
+#define LCD_REG_137           0x89
+#define LCD_REG_139           0x8B
+#define LCD_REG_140           0x8C
+#define LCD_REG_141           0x8D
+#define LCD_REG_143           0x8F
+#define LCD_REG_144           0x90
+#define LCD_REG_145           0x91
+#define LCD_REG_146           0x92
+#define LCD_REG_147           0x93
+#define LCD_REG_148           0x94
+#define LCD_REG_149           0x95
+#define LCD_REG_150           0x96
+#define LCD_REG_151           0x97
+#define LCD_REG_152           0x98
+#define LCD_REG_153           0x99
+#define LCD_REG_154           0x9A
+#define LCD_REG_157           0x9D
+#define LCD_REG_192           0xC0
+#define LCD_REG_193           0xC1
+#define LCD_REG_229           0xE5
 #define ILI932X_START_OSC          0x00
 #define ILI932X_DRIV_OUT_CTRL      0x01
 #define ILI932X_DRIV_WAV_CTRL      0x02
@@ -514,44 +571,82 @@ static const uint8_t
 100 }; //     100 ms delay
 #define TFTLCD_DELAY 0xFF
 static const uint16_t _regValues_big[] = {
-	  ILI932X_START_OSC        , 0x0001, // Start oscillator
-	  TFTLCD_DELAY             , 50,     // 50 millisecond delay
-	  ILI932X_DRIV_OUT_CTRL    ,0b0100000000,
-	  ILI932X_DRIV_WAV_CTRL    , 0b010000000000,
-	  ILI932X_ENTRY_MOD        , 0b0001000000000000,
-	  ILI932X_DISP_CTRL2       , 0x0202,
-	  ILI932X_DISP_CTRL3       , 0x0000,
-	  ILI932X_DISP_CTRL4       , 0x0000,
-	  ILI932X_POW_CTRL1        , 0x0000,
-	  ILI932X_POW_CTRL2        , 0x0007,
-	  ILI932X_POW_CTRL3        , 0x0000,
-	  ILI932X_POW_CTRL4        , 0x0000,
-	  TFTLCD_DELAY             , 200,
-	  ILI932X_POW_CTRL1        , 0x1690,
-	  ILI932X_POW_CTRL2        , 0x0227,
-	  TFTLCD_DELAY             , 50,
-	  ILI932X_POW_CTRL3        , 0x001A,
-	  TFTLCD_DELAY             , 50,
-	  ILI932X_POW_CTRL4        , 0x1800,
-	  ILI932X_POW_CTRL7        , 0x002A,
-	  ILI932X_RGB_DISP_IF_CTRL1, 0b000000000000011,
-	  ILI932X_FRM_RATE_COL_CTRL, 0b1101,
-	  TFTLCD_DELAY             , 50,
-	  ILI932X_HOR_START_AD     , 0x0000,
-	  ILI932X_HOR_END_AD       , 0x00EF,
-	  ILI932X_VER_START_AD     , 0X0000,
-	  ILI932X_VER_END_AD       , 0x013F,
-	  ILI932X_GATE_SCAN_CTRL1  , 0b0010011100000000, // Driver Output Control (R60h)
-	  ILI932X_GATE_SCAN_CTRL2  , 0b001, // Driver Output Control (R61h)
-	  ILI932X_GATE_SCAN_CTRL3  , 0x0000, // Driver Output Control (R62h)
-	  ILI932X_PANEL_IF_CTRL1   , 0X0010, // Panel Interface Control 1 (R90h)
-	  ILI932X_PANEL_IF_CTRL2   , 0X0000,
-	  ILI932X_PANEL_IF_CTRL3   , 0X0003,
-	  ILI932X_PANEL_IF_CTRL4   , 0X1100,
-	  ILI932X_PANEL_IF_CTRL5   , 0X0000,
-	  ILI932X_PANEL_IF_CTRL6   , 0X0000,
-	ILI932X_DISP_CTRL1 , 0x0133, // Main screen turn on
-};
+	  /* Start Initial Sequence --------------------------------------------------*/
+	  LCD_REG_0, 0x0001, /* Start internal OSC. */
+	  LCD_REG_1, 0x0000, /* Set SS and SM bit */
+	  LCD_REG_2, 0x0700, /* Set 1 line inversion */
+	   LCD_REG_3, 0x1030, /* Set GRAM write direction and BGR=1. */
+	  LCD_REG_4, 0x0000, /* Resize register */
+		/////
+	  LCD_REG_8, 0x0207, /* Set the back porch and front porch */
+	  LCD_REG_9, 0x0000, /* Set non-display area refresh cycle ISC[3:0] */
+	  LCD_REG_10, 0x0000, /* FMARK function */
+	  LCD_REG_12, 0x0000, /* RGB interface setting */
+	  LCD_REG_13, 0x0000, /* Frame marker Position */
+	  LCD_REG_15, 0x0000, /* RGB interface polarity */
+
+	  /* Power On sequence -------------------------------------------------------*/
+	  LCD_REG_16, 0x0000, /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+	  LCD_REG_17, 0x0000, /* DC1[2:0], DC0[2:0], VC[2:0] */
+	  LCD_REG_18, 0x0000, /* VREG1OUT voltage */
+	  LCD_REG_19, 0x0000, /* VDV[4:0] for VCOM amplitude */
+
+	  LCD_REG_16, 0x17B0, /* SAP, BT[3:0], AP, DSTB, SLP, STB */
+	  LCD_REG_17, 0x0137, /* DC1[2:0], DC0[2:0], VC[2:0] */
+
+	  LCD_REG_18, 0x0139, /* VREG1OUT voltage */
+
+	  LCD_REG_19, 0x1d00, /* VDV[4:0] for VCOM amplitude */
+	  LCD_REG_41, 0x0013, /* VCM[4:0] for VCOMH */
+
+	  LCD_REG_32, 0x0000, /* GRAM horizontal Address */
+	  LCD_REG_33, 0x0000, /* GRAM Vertical Address */
+
+	  /* Adjust the Gamma Curve (ILI9325) ----------------------------------------*/
+	  LCD_REG_48, 0x0007,
+	  LCD_REG_49, 0x0302,
+	  LCD_REG_50, 0x0105,
+	  LCD_REG_53, 0x0206,
+	  LCD_REG_54, 0x0808,
+	  LCD_REG_55, 0x0206,
+	  LCD_REG_56, 0x0504,
+	  LCD_REG_57, 0x0007,
+	  LCD_REG_60, 0x0105,
+	  LCD_REG_61, 0x0808,
+	  /* Set GRAM area -----------------------------------------------------------*/
+	  LCD_REG_80, 0x0000, /* Horizontal GRAM Start Address */
+	  LCD_REG_81, 0x00EF, /* Horizontal GRAM End Address */
+	  LCD_REG_82, 0x0000, /* Vertical GRAM Start Address */
+	  LCD_REG_83, 0x0013F, /* Vertical GRAM End Address */
+
+	  LCD_REG_96,  0x2700, /* Gate Scan Line(GS=1, scan direction is G320~G1) */
+	  LCD_REG_97,  0x0001, /* NDL,VLE, REV */
+	  LCD_REG_106, 0x0000, /* set scrolling line */
+
+	  /* Partial Display Control -------------------------------------------------*/
+	  LCD_REG_128, 0x0000,
+	  LCD_REG_129, 0x0000,
+	  LCD_REG_130, 0x0000,
+	  LCD_REG_131, 0x0000,
+	  LCD_REG_132, 0x0000,
+	  LCD_REG_133, 0x0000,
+
+	  /* Panel Control -----------------------------------------------------------*/
+	  LCD_REG_144, 0x0010,
+	  LCD_REG_146, 0x0000,
+	  LCD_REG_147, 0x0003,
+	  LCD_REG_149, 0x0110,
+	  LCD_REG_151, 0x0000,
+	  LCD_REG_152, 0x0000,
+
+	  /* set GRAM write direction and BGR = 1 */
+	  /* I/D=00 (Horizontal : increment, Vertical : decrement) */
+	  /* AM=1 (address is updated in vertical writing direction) */
+	  LCD_REG_3, 0x1028,
+
+	  /* 262K color and display ON */
+	  LCD_REG_7, 0x0173,
+	  /* Set the Cursor */};
 
 #ifdef __cplusplus
 }

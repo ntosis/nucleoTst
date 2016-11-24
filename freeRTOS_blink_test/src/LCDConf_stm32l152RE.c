@@ -185,9 +185,8 @@ static void LcdWriteData(U16 Data)
 static void LcdWriteDataMultiple(U16 *pData, int NumItems)
 {
 
-    U16 Data = (U16*)pData;
     for(int i=0; i<(NumItems); i++) {
-        TFTWriteData(Data);
+        TFTWriteData(*pData++);
     }
 }
 
