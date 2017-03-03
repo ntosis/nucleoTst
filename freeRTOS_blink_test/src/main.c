@@ -36,6 +36,8 @@
 #include "eeprom_calib.h"
 #include "pid.h"
 #include "rtc.h"
+#include <stdio.h>
+#include "adc.h"
 //#include "rtc.h"
 //#include "stm32l1xx_hal_msp.c"
 /* USER CODE BEGIN Includes */
@@ -116,6 +118,7 @@ int main(void)
   HAL_MspInit();
   initRtrEncoder();
   initLEDs();
+  ConfigureADC();
 
   pid_Init(K_P_Htng*SCALING_FACTOR,K_I_Htng*SCALING_FACTOR,K_D_Htng*SCALING_FACTOR,&pidData_Htng);
   pid_Init(K_P_Coolg*SCALING_FACTOR,K_I_Coolg*SCALING_FACTOR,K_D_Coolg*SCALING_FACTOR,&pidData_Coolg);
