@@ -38,6 +38,8 @@
 #include "rtc.h"
 #include <stdio.h>
 #include "adc.h"
+#include "ili9163.h"
+#include "FRAMEWIN.h"
 //#include "rtc.h"
 //#include "stm32l1xx_hal_msp.c"
 /* USER CODE BEGIN Includes */
@@ -119,7 +121,7 @@ int main(void)
   initRtrEncoder();
   initLEDs();
   ConfigureADC();
-
+  GUI_Init();
   pid_Init(K_P_Htng*SCALING_FACTOR,K_I_Htng*SCALING_FACTOR,K_D_Htng*SCALING_FACTOR,&pidData_Htng);
   pid_Init(K_P_Coolg*SCALING_FACTOR,K_I_Coolg*SCALING_FACTOR,K_D_Coolg*SCALING_FACTOR,&pidData_Coolg);
   //HAL_SPI_MspInit(&SpiHandle);
