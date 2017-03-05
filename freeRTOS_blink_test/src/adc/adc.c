@@ -344,4 +344,26 @@ void MX_USART2_UART_Init(void)
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	HAL_UART_Init(&huart2); */
 }
+#define GUI_TOUCH_AD_TOP     877
+#define GUI_TOUCH_AD_BOTTOM  273
+#define GUI_TOUCH_AD_LEFT    232
+#define GUI_TOUCH_AD_RIGHT   918
+
+void LCD_X_Config(void) {
+  //
+  // Initialize display driver
+  //
+  //
+  // Set orientation of touch screen (only required when using
+  //
+  TouchOrientation = (GUI_MIRROR_X * LCD_GetMirrorX()) |
+                     (GUI_MIRROR_Y * LCD_GetMirrorY()) |
+                     (GUI_SWAP_XY  * LCD_GetSwapXY()) ;
+  GUI_TOUCH_SetOrientation(TouchOrientation);
+  //
+  // Calibrate touch screen
+  //
+  GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, TOUCH_AD_TOP , TOUCH_AD_BOTTOM);
+  GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, TOUCH_AD_LEFT, TOUCH_AD_RIGHT);
+}
 

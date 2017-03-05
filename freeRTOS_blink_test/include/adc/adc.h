@@ -3,6 +3,7 @@
 #define __ADC_H
 
 #include "hardware_init.h"
+#include "LCD.h"
 
 extern GPIO_InitTypeDef gpioInit;
 extern ADC_ChannelConfTypeDef adcChannel1;
