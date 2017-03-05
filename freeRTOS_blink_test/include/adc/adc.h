@@ -3,7 +3,7 @@
 #define __ADC_H
 
 #include "hardware_init.h"
-#include "LCD.h"
+#include "GUI.h"
 
 extern GPIO_InitTypeDef gpioInit;
 extern ADC_ChannelConfTypeDef adcChannel1;
@@ -17,6 +17,11 @@ void DeInitTouhch(void);
 float MeasurmentChannel4();
 float MeasurmentChannel1();
 
+
+#define GUI_TOUCH_AD_TOP     877
+#define GUI_TOUCH_AD_BOTTOM  273
+#define GUI_TOUCH_AD_LEFT    232
+#define GUI_TOUCH_AD_RIGHT   918
 
 #endif
 

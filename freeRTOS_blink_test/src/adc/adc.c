@@ -79,13 +79,13 @@ void ConfigureADC()
     adcChannel1.SamplingTime = ADC_SAMPLETIME_192CYCLES ; //ADC_SAMPLETIME_16CYCLES;
 
 
-    if (HAL_ADC_ConfigChannel(&g_AdcHandle, &adcChannel1) != HAL_OK)
+    /*if (HAL_ADC_ConfigChannel(&g_AdcHandle, &adcChannel1) != HAL_OK)
 
     	{
 
     	asm("bkpt 255");
 
-    	}
+    	}*/
 
 
 }
@@ -142,7 +142,6 @@ int readTouchX(void) {
 
     //READ ANALOG
     uint32_t ADCValue=0;
-    for(int i=0;i<16;i++) {
     HAL_ADC_Start(&g_AdcHandle);
     while(1){
 	if(__HAL_ADC_GET_FLAG(&g_AdcHandle, ADC_FLAG_EOC)) {
@@ -156,7 +155,7 @@ int readTouchX(void) {
 
     }
     HAL_ADC_Stop(&g_AdcHandle);
-    }
+
    // if (HAL_ADC_PollForConversion(&g_AdcHandle, 100) == HAL_OK)
        	//ADCValue =HAL_ADC_GetValue(&g_AdcHandle); //A1
 
@@ -166,8 +165,8 @@ int readTouchX(void) {
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_4);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_1);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_0);
-    int X = (((ADCValue >>4)-520)*(128))/(3386-520);
-    return (int)(X);
+    //int X = (((ADCValue >>4)-520)*(128))/(3386-520); dieresh me to 16 (num>>4)
+    return (int)(ADCValue);
 
 }
 int readTouchY(void) {
@@ -243,8 +242,8 @@ int readTouchY(void) {
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_4);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_1);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_0);
-    int Y = (((ADCValue)-590)*(160))/(3693-590);
-    return (int)(Y);
+    //int Y = (((ADCValue)-590)*(160))/(3693-590);
+    return (int)(ADCValue);
     //return (int)ADCValue;
 
 }
@@ -344,10 +343,7 @@ void MX_USART2_UART_Init(void)
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	HAL_UART_Init(&huart2); */
 }
-#define GUI_TOUCH_AD_TOP     877
-#define GUI_TOUCH_AD_BOTTOM  273
-#define GUI_TOUCH_AD_LEFT    232
-#define GUI_TOUCH_AD_RIGHT   918
+
 
 void LCD_X_Config(void) {
   //
@@ -356,14 +352,24 @@ void LCD_X_Config(void) {
   //
   // Set orientation of touch screen (only required when using
   //
-  TouchOrientation = (GUI_MIRROR_X * LCD_GetMirrorX()) |
+  unsigned int TouchOrientation = (GUI_MIRROR_X * LCD_GetMirrorX()) |
                      (GUI_MIRROR_Y * LCD_GetMirrorY()) |
                      (GUI_SWAP_XY  * LCD_GetSwapXY()) ;
   GUI_TOUCH_SetOrientation(TouchOrientation);
   //
   // Calibrate touch screen
   //
-  GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, TOUCH_AD_TOP , TOUCH_AD_BOTTOM);
-  GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, TOUCH_AD_LEFT, TOUCH_AD_RIGHT);
+  GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, GUI_TOUCH_AD_TOP , GUI_TOUCH_AD_BOTTOM);
+  GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, GUI_TOUCH_AD_LEFT, GUI_TOUCH_AD_RIGHT);
 }
 
+void GUI_TOUCH_X_ActivateX(void) {} //empty
+void GUI_TOUCH_X_ActivateY(void) {} //empty
+int GUI_TOUCH_X_MeasureX(void) {
+    return readTouchX();
+}
+int GUI_TOUCH_X_MeasureY(void) {
+    return readTouchY();
+}
+void GUI_X_Config(void){}
+void GUI_X_Init  (void){}

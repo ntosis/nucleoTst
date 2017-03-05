@@ -227,7 +227,7 @@ void Task_10ms(void const *argument)
 
 
     			  readEncoder();
-
+    			 GUI_TOUCH_Exec(); // Touch Screen
     			  // Wait for the next cycle.
     			vTaskDelayUntil( &xLastWakeTime, xDelay );
     		}
