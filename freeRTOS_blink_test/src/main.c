@@ -40,6 +40,8 @@
 #include "adc.h"
 #include "ili9163.h"
 #include "FRAMEWIN.h"
+#include "stm32l1xx_hal.h"
+#include "GUI.h"
 //#include "rtc.h"
 //#include "stm32l1xx_hal_msp.c"
 /* USER CODE BEGIN Includes */
@@ -213,7 +215,7 @@ void Task_300ms(void const *argument)
 			//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
 		        readButton(xTaskGetTickCount ());
 			  // Wait for the next cycle.
-			  vTaskDelayUntil( &xLastWakeTime, xDelay );
+			vTaskDelayUntil( &xLastWakeTime, xDelay );
 		}
 }
 
@@ -226,7 +228,7 @@ void Task_10ms(void const *argument)
     		while(1) {
 
 
-    			  readEncoder();
+    			 readEncoder();
     			 GUI_TOUCH_Exec(); // Touch Screen
     			  // Wait for the next cycle.
     			vTaskDelayUntil( &xLastWakeTime, xDelay );
@@ -238,6 +240,7 @@ void Task_500ms(void const *argument)
         portTickType xLastWakeTime;
         const portTickType xDelay = 500 / portTICK_RATE_MS;
         uint8_t internCounter=0;
+        GUITask();
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
     		while(1) {

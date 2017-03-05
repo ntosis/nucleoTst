@@ -345,24 +345,6 @@ void MX_USART2_UART_Init(void)
 }
 
 
-void LCD_X_Config(void) {
-  //
-  // Initialize display driver
-  //
-  //
-  // Set orientation of touch screen (only required when using
-  //
-  unsigned int TouchOrientation = (GUI_MIRROR_X * LCD_GetMirrorX()) |
-                     (GUI_MIRROR_Y * LCD_GetMirrorY()) |
-                     (GUI_SWAP_XY  * LCD_GetSwapXY()) ;
-  GUI_TOUCH_SetOrientation(TouchOrientation);
-  //
-  // Calibrate touch screen
-  //
-  GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, GUI_TOUCH_AD_TOP , GUI_TOUCH_AD_BOTTOM);
-  GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, GUI_TOUCH_AD_LEFT, GUI_TOUCH_AD_RIGHT);
-}
-
 void GUI_TOUCH_X_ActivateX(void) {} //empty
 void GUI_TOUCH_X_ActivateY(void) {} //empty
 int GUI_TOUCH_X_MeasureX(void) {
@@ -371,5 +353,3 @@ int GUI_TOUCH_X_MeasureX(void) {
 int GUI_TOUCH_X_MeasureY(void) {
     return readTouchY();
 }
-void GUI_X_Config(void){}
-void GUI_X_Init  (void){}

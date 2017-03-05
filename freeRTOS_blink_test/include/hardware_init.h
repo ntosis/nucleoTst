@@ -34,6 +34,13 @@ typedef enum { false, true } bool;
 #define __READ(pin)           _GET(GPIO,pin)
 
 // Set Pins
+#define LCD_ChipSelect B,0
+#define LCD_CMD A,4
+#define TempSensor_SS B,4
+#define LCD_Reset A,10
+#define LCD_WR A,1
+#define LCD_RD A,0
+#define PORTAMSK_RS_W_R 0b0000000000010011
 #define TempSensor_SS B,8 //Temperature slave select Pin, Arduino connector D5
 #define RtrEnc_CLK A,10 // Arduino connector D2
 #define RtrEnc_DT B,5 // Arduino connector D4

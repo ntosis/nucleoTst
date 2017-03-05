@@ -81,8 +81,10 @@ Purpose     : Display controller configuration (single layer)
 
 #include <ili9163/ili9163.h>
 #include "GUI.h"
+#include "adc.h"
 #include "GUIDRV_FlexColor.h"
-#include "main.h"
+#include "stm32l1xx_hal.h"
+#include "GUI.h"
 #include "stm32l1xx_hal_spi.h"
 #include "hardware_init.h"
 /*********************************************************************
@@ -264,6 +266,22 @@ void LCD_X_Config(void)
   PortAPI.pfReadM16_A1  = LcdReadDataMultiple;
 // GUIDRV_FLEXCOLOR_F66708 for ili9325 https://www.segger.com/emwin-guidrv-flexcolor.html
     GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66708, GUIDRV_FLEXCOLOR_M16C0B16);
+
+    //
+    // Initialize display driver
+    //
+    //
+    // Set orientation of touch screen (only required when using
+    //
+    unsigned int TouchOrientation = (GUI_MIRROR_X * LCD_GetMirrorX()) |
+                       (GUI_MIRROR_Y * LCD_GetMirrorY()) |
+                       (GUI_SWAP_XY  * LCD_GetSwapXY()) ;
+    GUI_TOUCH_SetOrientation(TouchOrientation);
+    //
+    // Calibrate touch screen
+    //
+    GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, GUI_TOUCH_AD_TOP , GUI_TOUCH_AD_BOTTOM);
+    GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, GUI_TOUCH_AD_LEFT, GUI_TOUCH_AD_RIGHT);
 }
 
 /*********************************************************************
