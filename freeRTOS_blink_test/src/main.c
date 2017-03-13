@@ -34,6 +34,8 @@
 #include "main.h"
 #include "hardware_init.h"
 #include "temperatureSens.h"
+#include "eeprom_calib.h"
+#include "pid.h"
 #include "ili9163.h"
 #include "FRAMEWIN.h"
 
@@ -49,9 +51,15 @@
 
 osThreadId defaultTaskHandle;
 osThreadId blinkTaskHandle;
+osThreadId TaskHandle_10ms;
+osThreadId TaskHandle_500ms;
+osThreadId TaskHandle_300ms;
 osSemaphoreId semHandle;
+
 extern uint8_t Temperature;
 extern SPI_HandleTypeDef SpiHandle;
+extern pidData_t pidData_Htng;
+extern pidData_t pidData_Coolg;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -61,7 +69,10 @@ extern SPI_HandleTypeDef SpiHandle;
 void SystemClock_Config(void);
 void Error_Handler(void);
 void StartDefaultTask(void const * argument);
-void BlinkTask(void const *argument);
+void Task_10ms(void const *argument);
+void Task_100ms(void const *argument);
+void Task_300ms(void const *argument);
+void Task_500ms(void const *argument);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -90,7 +101,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   //initTempSens();
-  //TFTInit2();
+  //initRtrEncoder();
+  //initLEDs();
+  GUI_Init();
+  WM_SetCreateFlags(WM_CF_MEMDEV);
+  pid_Init(K_P_Htng*SCALING_FACTOR,K_I_Htng*SCALING_FACTOR,K_D_Htng*SCALING_FACTOR,&pidData_Htng);
+  pid_Init(K_P_Coolg*SCALING_FACTOR,K_I_Coolg*SCALING_FACTOR,K_D_Coolg*SCALING_FACTOR,&pidData_Coolg);
 
   //HAL_MspInit();
   //HAL_SPI_MspInit(&SpiHandle);
@@ -109,16 +125,20 @@ int main(void)
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
-  GUI_Init();
-  WM_SetCreateFlags(WM_CF_MEMDEV);
+
   /* Create the threads and semaphore */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-  osThreadDef(blinkTask, BlinkTask, osPriorityNormal, 0, 128);
-  blinkTaskHandle = osThreadCreate(osThread(blinkTask), NULL);
-  osSemaphoreDef(sem);
-  semHandle = osSemaphoreCreate(osSemaphore(sem), 1);
-  osSemaphoreWait(semHandle, osWaitForever);
+   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+   osThreadDef(task_300ms, Task_300ms, osPriorityNormal, 0, 128);
+   TaskHandle_300ms = osThreadCreate(osThread(task_300ms), NULL);
+
+  osThreadDef(task_10ms, Task_10ms, osPriorityRealtime, 0, 128);
+   TaskHandle_10ms = osThreadCreate(osThread(task_10ms), NULL);
+
+   osThreadDef(task_500ms, Task_500ms, osPriorityNormal, 0, 128);
+   TaskHandle_500ms = osThreadCreate(osThread(task_500ms), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -161,24 +181,74 @@ void StartDefaultTask(void const * argument)
     while(1) {
    	  //if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) {
 	if(1){
-   		  osSemaphoreRelease(semHandle);
-   		  osThreadTerminate(NULL);
+
    	  }
      }
   /* USER CODE END 5 */ 
 }
-void BlinkTask(void const *argument)
+void Task_300ms(void const *argument)
 {
-	if(osSemaphoreWait(semHandle, osWaitForever) == osOK) {
+    portTickType xLastWakeTime;
+    const portTickType xDelay = 100 / portTICK_RATE_MS;
+    // Initialise the xLastWakeTime variable with the current time.
+         xLastWakeTime = xTaskGetTickCount ();
 		while(1) {
 		        actualTemperature();
-		        MainTask();
-			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
-			if(Temperature>25) osDelay(500);
-			else osDelay(2500);
+			//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
+		        //readButton(xTaskGetTickCount ());
+			  // Wait for the next cycle.
+			vTaskDelayUntil( &xLastWakeTime, xDelay );
 		}
-	}
 }
+
+void Task_10ms(void const *argument)
+    {
+        portTickType xLastWakeTime;
+        const portTickType xDelay = 10 / portTICK_RATE_MS;
+        // Initialise the xLastWakeTime variable with the current time.
+             xLastWakeTime = xTaskGetTickCount ();
+    		while(1) {
+
+
+    			 //readEncoder();
+    			//GUI_TOUCH_Exec(); // Touch Screen
+    			  // Wait for the next cycle.
+    			vTaskDelayUntil( &xLastWakeTime, xDelay );
+    		}
+    	}
+
+void Task_500ms(void const *argument)
+    {
+        portTickType xLastWakeTime;
+        const portTickType xDelay = 500 / portTICK_RATE_MS;
+        uint8_t internCounter=0;
+        // Initialise the xLastWakeTime variable with the current time.
+             xLastWakeTime = xTaskGetTickCount ();
+    		while(1) {
+
+    			 //checkStruct();
+    			 //updateSollTemperature();
+    			 //LEDfunction();
+    			 volatile CAL_PARAM *gp = &CALinEE;
+    			 volatile uint8_t ii =  oneLevelSystem_C;
+    			 MainTask();
+    			 //run every 1 second
+    			  if(internCounter==2) {
+
+    				      Ctrl_Subsystem_step();
+    				      /*##-3- Display the updated Time and Date ################################*/
+    				      //LED_Blinking((__LL_RTC_CONVERT_BCD2BIN(LL_RTC_TIME_GetSecond(RTC)))*10);
+
+    				      internCounter=0;
+
+    				       }
+
+    			internCounter++;
+
+    			  // Wait for the next cycle.
+    			vTaskDelayUntil( &xLastWakeTime, xDelay );
+    		}
+    	}
 /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM2 interrupt took place, inside

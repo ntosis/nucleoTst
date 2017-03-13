@@ -22,6 +22,9 @@ Purpose     : Simple demo drawing "Hello world"
 
 #include "GUI.h"
 #include "BUTTON.h"
+#include "heatingSys.h"
+#include "temperatureSens.h"
+
 static BUTTON_Handle hButton;
 ;
 /*********************************************************************
@@ -37,27 +40,10 @@ static BUTTON_Handle hButton;
 void MainTask(void) {
     GUI_SetFont(&GUI_Font8x16);
     GUI_SetBkColor(GUI_BLUE);
-
-    GUI_SetColor(GUI_WHITE);
-    GUI_Clear();
-    GUI_SetPenSize(10);
-    GUI_SetColor(GUI_RED);
-    GUI_DrawLine(50, 0, 150, 150);
-    GUI_DrawLine(50, 0, 150, 150);
-    GUI_FillCircle(100,100,10);
-    GUI_SetBkColor(GUI_WHITE);
-    GUI_SetColor(GUI_YELLOW);
-    GUI_SetTextMode(GUI_TM_NORMAL);
-    GUI_DispStringHCenterAt("GUI_TM_NORMAL" , 100, 0);
-    GUI_SetTextMode(GUI_TM_REV);
-    GUI_DispStringHCenterAt("GUI_TM_REV" , 100, 26);
-    GUI_SetTextMode(GUI_TM_TRANS);
-    GUI_DispStringHCenterAt("GUI_TM_TRANS" , 100, 42);
-    GUI_SetTextMode(GUI_TM_XOR);
-    GUI_DispStringHCenterAt("GUI_TM_XOR" , 100, 58);
-    GUI_SetTextMode(GUI_TM_TRANS | GUI_TM_REV);
-    GUI_DispStringHCenterAt("GUI_TM_TRANS | GUI_TM_REV", 100, 74);
-  while(1);
+    static int i=0;
+    GUI_DispStringAt("i: ",20,20); GUI_DispDecAt( i++, 110,20,4);
+    GUI_DispStringAt("Temp: ",20,40); GUI_DispDecAt((int)actualTemperature(),110,40,4);
+    GUI_DispStringAt("SOLL Temp: ",20,60); GUI_DispDecAt(SOLLtemperature,110,60,4);
 }
 
 /*************************** End of file ****************************/
