@@ -133,10 +133,10 @@ int main(void)
    osThreadDef(task_300ms, Task_300ms, osPriorityNormal, 0, 128);
    TaskHandle_300ms = osThreadCreate(osThread(task_300ms), NULL);
 
-  osThreadDef(task_10ms, Task_10ms, osPriorityRealtime, 0, 128);
+  osThreadDef(task_10ms, Task_10ms, osPriorityNormal, 0, 128);
    TaskHandle_10ms = osThreadCreate(osThread(task_10ms), NULL);
 
-   osThreadDef(task_500ms, Task_500ms, osPriorityNormal, 0, 128);
+   osThreadDef(task_500ms, Task_500ms, osPriorityRealtime, 0, 1024);
    TaskHandle_500ms = osThreadCreate(osThread(task_500ms), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -285,6 +285,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler */ 
 }
 
+void GUI_X_ErrorOut(const char * s){}
 #ifdef USE_FULL_ASSERT
 
 /**
