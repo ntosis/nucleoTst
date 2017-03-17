@@ -118,10 +118,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  initTempSens();
+  //initTempSens();
   HAL_MspInit();
-  initRtrEncoder();
-  initLEDs();
+  //initRtrEncoder();
+  //initLEDs();
   ConfigureADC();
   GUI_Init();
   pid_Init(K_P_Htng*SCALING_FACTOR,K_I_Htng*SCALING_FACTOR,K_D_Htng*SCALING_FACTOR,&pidData_Htng);
@@ -212,8 +212,7 @@ void Task_300ms(void const *argument)
          xLastWakeTime = xTaskGetTickCount ();
 		while(1) {
 		        //actualTemperature();
-			//HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_0);
-		        readButton(xTaskGetTickCount ());
+			//readButton(xTaskGetTickCount ());
 			  // Wait for the next cycle.
 			vTaskDelayUntil( &xLastWakeTime, xDelay );
 		}
@@ -228,7 +227,7 @@ void Task_10ms(void const *argument)
     		while(1) {
 
 
-    			 readEncoder();
+    			 //readEncoder();
     			 GUI_TOUCH_Exec(); // Touch Screen
     			  // Wait for the next cycle.
     			vTaskDelayUntil( &xLastWakeTime, xDelay );
@@ -240,17 +239,17 @@ void Task_500ms(void const *argument)
         portTickType xLastWakeTime;
         const portTickType xDelay = 500 / portTICK_RATE_MS;
         uint8_t internCounter=0;
-        GUITask();
+
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
     		while(1) {
 
-    			 checkStruct();
-    			 updateSollTemperature();
-    			 LEDfunction();
+    			 //checkStruct();
+    			 //updateSollTemperature();
+    			 //LEDfunction();
     			 volatile CAL_PARAM *gp = &CALinEE;
     			 volatile uint8_t ii =  oneLevelSystem_C;
-
+    			 GUITask();
     			 //run every 1 second
     			  if(internCounter==2) {
 
