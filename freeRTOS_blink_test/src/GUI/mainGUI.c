@@ -21,7 +21,7 @@
 // USER START (Optionally insert additional includes)
 // USER END
 
-#include "DIALOG.h"
+#include "mainGUI.h"
 
 /*********************************************************************
 *
@@ -148,7 +148,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 *
 *       CreateWindow
 */
-WM_HWIN CreateWindow(void);
+
 WM_HWIN CreateWindow(void) {
   WM_HWIN hWin;
 
@@ -160,6 +160,7 @@ WM_HWIN CreateWindow(void) {
 // USER END
 
 /*************************** End of file ****************************/
+void GUI_X_ErrorOut(const char * s) {}
 
 void GUITask(void) {
      GUI_Clear();
