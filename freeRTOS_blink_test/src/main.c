@@ -118,12 +118,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  GUI_Init();
   //initTempSens();
   HAL_MspInit();
   //initRtrEncoder();
   //initLEDs();
   ConfigureADC();
-  GUI_Init();
   pid_Init(K_P_Htng*SCALING_FACTOR,K_I_Htng*SCALING_FACTOR,K_D_Htng*SCALING_FACTOR,&pidData_Htng);
   pid_Init(K_P_Coolg*SCALING_FACTOR,K_I_Coolg*SCALING_FACTOR,K_D_Coolg*SCALING_FACTOR,&pidData_Coolg);
   //HAL_SPI_MspInit(&SpiHandle);
@@ -228,7 +228,7 @@ void Task_10ms(void const *argument)
 
 
     			 //readEncoder();
-    			 GUI_TOUCH_Exec(); // Touch Screen
+    			// GUI_TOUCH_Exec(); // Touch Screen
     			  // Wait for the next cycle.
     			vTaskDelayUntil( &xLastWakeTime, xDelay );
     		}
@@ -253,9 +253,9 @@ void Task_500ms(void const *argument)
     			 //run every 1 second
     			  if(internCounter==2) {
 
-    				      Ctrl_Subsystem_step();
+    				      //Ctrl_Subsystem_step();
     				      /*##-3- Display the updated Time and Date ################################*/
-    				      LED_Blinking((__LL_RTC_CONVERT_BCD2BIN(LL_RTC_TIME_GetSecond(RTC)))*10);
+    				     // LED_Blinking((__LL_RTC_CONVERT_BCD2BIN(LL_RTC_TIME_GetSecond(RTC)))*10);
 
     				      internCounter=0;
 
