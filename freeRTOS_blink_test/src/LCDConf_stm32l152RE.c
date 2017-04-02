@@ -273,15 +273,13 @@ void LCD_X_Config(void)
     //
     // Set orientation of touch screen (only required when using
     //
-    unsigned int TouchOrientation = (GUI_MIRROR_X * LCD_GetMirrorX()) |
-                       (GUI_MIRROR_Y * LCD_GetMirrorY()) |
-                       (GUI_SWAP_XY  * LCD_GetSwapXY()) ;
+    unsigned int TouchOrientation = (GUI_SWAP_XY  * LCD_GetSwapXY()) ;
     GUI_TOUCH_SetOrientation(TouchOrientation);
     //
     // Calibrate touch screen
     //
-    GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, GUI_TOUCH_AD_TOP , GUI_TOUCH_AD_BOTTOM);
-    GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, GUI_TOUCH_AD_LEFT, GUI_TOUCH_AD_RIGHT);
+    GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, 3840, 430);
+    GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, 3600, 380);
 }
 
 /*********************************************************************

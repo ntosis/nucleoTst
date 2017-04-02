@@ -90,6 +90,10 @@ void ConfigureADC()
 
 }
 int readTouchX(void) {
+    GPIO_TypeDef tempA; // save the state of the PortA
+    GPIO_TypeDef tempB; // save the state of the PortB
+    memcpy((void *)&tempA,GPIOA,sizeof(GPIO_TypeDef));
+    memcpy((void *)&tempB,GPIOB,sizeof(GPIO_TypeDef));
 
     GPIO_InitTypeDef GPIO_InitStruct,gpioAnalog;
     adcChannel1.Channel = ADC_CHANNEL_1;
@@ -160,18 +164,29 @@ int readTouchX(void) {
        	//ADCValue =HAL_ADC_GetValue(&g_AdcHandle); //A1
 
     //DeInit ALL
+    /*
     HAL_GPIO_DeInit(GPIOB,GPIO_PIN_10);
     HAL_GPIO_DeInit(GPIOB,GPIO_PIN_9);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_4);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_1);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_0);
+    */
+    memcpy(GPIOA,(void *)&tempA,sizeof(GPIO_TypeDef));
+    memcpy(GPIOB,(void *)&tempB,sizeof(GPIO_TypeDef));
+
     //int X = (((ADCValue >>4)-520)*(128))/(3386-520); dieresh me to 16 (num>>4)
     return (int)(ADCValue);
 
 }
 int readTouchY(void) {
 
+    GPIO_TypeDef tempA; // save the state of the PortA
+    GPIO_TypeDef tempB; // save the state of the PortB
+    memcpy((void *)&tempA,GPIOA,sizeof(GPIO_TypeDef));
+    memcpy((void *)&tempB,GPIOB,sizeof(GPIO_TypeDef));
+
     GPIO_InitTypeDef GPIO_InitStruct,gpioAnalog;
+
     adcChannel4.Channel = ADC_CHANNEL_4;
     adcChannel4.Rank = 1;
     adcChannel4.SamplingTime = ADC_SAMPLETIME_384CYCLES; //ADC_SAMPLETIME_16CYCLES;
@@ -236,13 +251,15 @@ int readTouchY(void) {
 
     HAL_ADC_Stop(&g_AdcHandle);
 
-    //DeInit ALL
+    /*//DeInit ALL
     HAL_GPIO_DeInit(GPIOB,GPIO_PIN_10);
     HAL_GPIO_DeInit(GPIOB,GPIO_PIN_9);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_4);
     HAL_GPIO_DeInit(GPIOA,GPIO_PIN_1);
-    HAL_GPIO_DeInit(GPIOA,GPIO_PIN_0);
+    HAL_GPIO_DeInit(GPIOA,GPIO_PIN_0); */
     //int Y = (((ADCValue)-590)*(160))/(3693-590);
+    memcpy(GPIOA,(void *)&tempA,sizeof(GPIO_TypeDef));
+    memcpy(GPIOB,(void *)&tempB,sizeof(GPIO_TypeDef));
     return (int)(ADCValue);
     //return (int)ADCValue;
 
@@ -251,7 +268,10 @@ int readTouchY(void) {
 int readPressure(void) {
     GPIO_InitTypeDef GPIO_InitStruct,gpioAnalog;
 
-
+    GPIO_TypeDef tempA; // save the state of the PortA
+    GPIO_TypeDef tempB; // save the state of the PortB
+    memcpy((void *)&tempA,GPIOA,sizeof(GPIO_TypeDef));
+    memcpy((void *)&tempB,GPIOB,sizeof(GPIO_TypeDef));
 
     //XP D6LCD D14NUCL_PB9 --SET AS OUTPUT
      GPIO_InitStruct.Pin = GPIO_PIN_9;
@@ -324,12 +344,16 @@ int readPressure(void) {
                  HAL_ADC_Stop(&g_AdcHandle);
 
        //DeInit ALL
+     /*
       HAL_GPIO_DeInit(GPIOB,GPIO_PIN_10);
       HAL_GPIO_DeInit(GPIOB,GPIO_PIN_9);
       HAL_GPIO_DeInit(GPIOA,GPIO_PIN_4);
       HAL_GPIO_DeInit(GPIOA,GPIO_PIN_1);
       HAL_GPIO_DeInit(GPIOA,GPIO_PIN_0);
+      */
 
+      memcpy(GPIOA,(void *)&tempA,sizeof(GPIO_TypeDef));
+      memcpy(GPIOB,(void *)&tempB,sizeof(GPIO_TypeDef));
       return abs(ADCValue2-ADCValue);
 }
 void MX_USART2_UART_Init(void)

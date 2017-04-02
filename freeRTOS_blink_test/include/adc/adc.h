@@ -18,10 +18,10 @@ float MeasurmentChannel4();
 float MeasurmentChannel1();
 
 
-#define GUI_TOUCH_AD_TOP     877
-#define GUI_TOUCH_AD_BOTTOM  273
-#define GUI_TOUCH_AD_LEFT    232
-#define GUI_TOUCH_AD_RIGHT   918
+#define GUI_TOUCH_AD_TOP     3745//450
+#define GUI_TOUCH_AD_BOTTOM  550 //3900
+#define GUI_TOUCH_AD_LEFT    514//3800
+#define GUI_TOUCH_AD_RIGHT   3500//420
 
 #endif
 

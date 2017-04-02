@@ -119,8 +119,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   GUI_Init();
+  WM_SetCreateFlags(WM_CF_MEMDEV);
   //initTempSens();
-  HAL_MspInit();
+  //HAL_MspInit();
   //initRtrEncoder();
   //initLEDs();
   ConfigureADC();
@@ -228,7 +229,16 @@ void Task_10ms(void const *argument)
 
 
     			 //readEncoder();
-    			// GUI_TOUCH_Exec(); // Touch Screen
+    		    if(readPressure()<3400){
+    			GUI_PID_STATE State;
+    		  	State.Pressed = 1;
+
+    			//GUI_TOUCH_StoreStateEx(&State);
+    			GUI_TOUCH_Exec(); // Touch Screen
+    		    }
+    		    else {
+    			GUI_TOUCH_StoreState(-1,-1);
+    		    }
     			  // Wait for the next cycle.
     			vTaskDelayUntil( &xLastWakeTime, xDelay );
     		}
@@ -237,9 +247,15 @@ void Task_10ms(void const *argument)
 void Task_500ms(void const *argument)
     {
         portTickType xLastWakeTime;
-        const portTickType xDelay = 500 / portTICK_RATE_MS;
+        const portTickType xDelay = 200 / portTICK_RATE_MS;
         uint8_t internCounter=0;
-
+        /*GUI_CURSOR_Show();
+              GUI_CURSOR_Select(&GUI_CursorCrossL);
+              GUI_SetBkColor(GUI_WHITE);
+              GUI_SetColor(GUI_BLACK);
+              GUI_Clear();
+              GUI_DispString("Measurement of\nA/D converter values");
+              */
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
     		while(1) {
