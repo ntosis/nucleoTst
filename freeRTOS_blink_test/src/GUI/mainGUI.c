@@ -21,8 +21,8 @@
 // USER START (Optionally insert additional includes)
 // USER END
 
-#include "mainGUI.h"
-GUI_PID_STATE State;
+#include "DIALOG.h"
+
 /*********************************************************************
 *
 *       Defines
@@ -148,7 +148,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 *
 *       CreateWindow
 */
-
+WM_HWIN CreateWindow(void);
 WM_HWIN CreateWindow(void) {
   WM_HWIN hWin;
 
@@ -160,56 +160,13 @@ WM_HWIN CreateWindow(void) {
 // USER END
 
 /*************************** End of file ****************************/
-void GUI_X_ErrorOut(const char * s) {}
 
+void GUI_X_ErrorOut(const char * s) {}
 void GUITask(void) {
 
-      int           xPhys;
-      int           yPhys;
+    CreateWindow();
 
-      //GUI_Init();
-      //
-      // Check if recommended memory for the sample is available
-      //
-
-
-
-        GUI_TOUCH_GetState(&State);  // Get the touch position in pixel
-        xPhys = GUI_TOUCH_GetxPhys();     // Get the A/D mesurement result in x
-        yPhys = GUI_TOUCH_GetyPhys();     // Get the A/D mesurement result in y
-        //
-        // Display the measurement result
-        //
-        GUI_SetColor(GUI_BLUE);
-        GUI_DispStringAt("Analog input:\n", 0, 20);
-        GUI_GotoY(GUI_GetDispPosY() + 2);
-        GUI_DispString("x:");
-        GUI_DispDec(xPhys, 4);
-        GUI_DispString(", y:");
-        GUI_DispDec(yPhys, 4);
-        //
-        // Display the according position
-        //
-        volatile int x = GUI_GetDispPosY();
-        GUI_SetColor(GUI_RED);
-        GUI_GotoY(GUI_GetDispPosY() + 4);
-        GUI_DispString("\nPosition:\n");
-        GUI_GotoY(GUI_GetDispPosY() + 2);
-        GUI_DispString("x:");
-        GUI_DispDec(State.x,4);
-        GUI_DispString(", y:");
-        GUI_DispDec(State.y,4);
-        GUI_DispString(", Pr:");
-        GUI_DispDec(readPressure(),4);
-
-        //
-        // Wait a while
-        //
-
-            GUI_TOUCH_GetState(&State);
-            if (State.Pressed == 1) {
-              GUI_FillCircle(State.x, State.y, 3);
-            }
+    while(1){GUI_Exec();};
 }
 
 /*************************** End of file ****************************/
