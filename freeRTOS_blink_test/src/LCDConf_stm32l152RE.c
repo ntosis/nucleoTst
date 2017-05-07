@@ -87,6 +87,8 @@ Purpose     : Display controller configuration (single layer)
 #include "GUI.h"
 #include "stm32l1xx_hal_spi.h"
 #include "hardware_init.h"
+#include <stddef.h>
+#include <stdlib.h>
 /*********************************************************************
 *
 *       Layer configuration (to be modified)
@@ -151,8 +153,44 @@ typedef struct
 **********************************************************************
 */
 static void LCD_LL_Init(void);
+/*********************************************************************
+*
+*       Typedefs
+*
+**********************************************************************
+*/
+typedef struct {
+  int NumBuffers;
+  const GUI_DEVICE_API * pDriver;
+  const LCD_API_COLOR_CONV * pColorConv;
+  int xSize, ySize;
+  int xPos, yPos;
+} INIT_LAYER;
 
-
+typedef struct {
+  int NumLayers;
+  INIT_LAYER aLayer[GUI_NUM_LAYERS];
+} INIT_APP;
+/*********************************************************************
+*
+*       Static data
+*
+**********************************************************************
+*/
+//
+// Array for initializing layers for applications. Do not change order
+//
+static INIT_APP _InitApp = {
+  //
+  // TemperatureControl
+  //
+  3,  // Number of layers
+  {
+    { 3, GUIDRV_WIN32, GUICC_M565,   800, 480, 0, 0, },
+    { 3, GUIDRV_WIN32, GUICC_M8888I, 200, 200, 500, 139, },
+    { 3, GUIDRV_WIN32, GUICC_M8888I, 175, 175, 514, 154, },
+  }
+};
 /********************************************************************
 *
 *       LcdWriteReg
@@ -238,6 +276,7 @@ static void LCD_LL_Init(void)
 */
 void LCD_X_Config(void)
 {
+  int i;
   GUI_DEVICE *pDevice;
   CONFIG_FLEXCOLOR Config = {0};
   GUI_PORT_API PortAPI = {0};
@@ -280,6 +319,7 @@ void LCD_X_Config(void)
     //
     GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, 3840, 430);
     GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, 3600, 380);
+
 }
 
 /*********************************************************************

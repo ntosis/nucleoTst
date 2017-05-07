@@ -122,7 +122,10 @@ void GUI_X_Config(void)
 {
 
   GUI_ALLOC_AssignMemory(extMem, GUI_NUMBYTES);
-
+  //
+    // Default font
+    //
+    GUI_SetDefaultFont(GUI_FONT_6X8);
 }
 
 /*************************** End of file ****************************/

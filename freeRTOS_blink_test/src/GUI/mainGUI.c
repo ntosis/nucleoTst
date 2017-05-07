@@ -22,6 +22,7 @@
 // USER END
 
 #include "DIALOG.h"
+#include "mainGUI.h"
 
 /*********************************************************************
 *
@@ -31,8 +32,15 @@
 */
 #define ID_WINDOW_0  (GUI_ID_USER + 0x00)
 #define ID_BUTTON_0  (GUI_ID_USER + 0x01)
-#define ID_CHECKBOX_0  (GUI_ID_USER + 0x02)
+#define ID_BUTTON_1  (GUI_ID_USER + 0x02)
+#define ID_SPINBOX_0  (GUI_ID_USER + 0x03)
+#define ID_TEXT_0  (GUI_ID_USER + 0x04)
+#define ID_IMAGE_0  (GUI_ID_USER + 0x05)
+#define ID_BUTTON_2  (GUI_ID_USER + 0x06)
+#define ID_BUTTON_3  (GUI_ID_USER + 0x07)
+#define ID_BUTTON_4  (GUI_ID_USER + 0x08)
 
+#define ID_IMAGE_0_IMAGE_0  0x00
 
 // USER START (Optionally insert additional defines)
 // USER END
@@ -43,8 +51,28 @@
 *
 **********************************************************************
 */
-
+/*********************************************************************
+*
+*       _acImage_0, "BMP", ID_IMAGE_0_IMAGE_0
+*/
+static const U8 _acImage_0[463] = {
+  0x42, 0x4D, 0xCE, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x32, 0x00, 0x00, 0x00, 0x32, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x90, 0x01, 0x00, 0x00, 0x12, 0x0B, 0x00, 0x00,
+  0x12, 0x0B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21,
+  0x40, 0x00, 0x90, 0x84, 0x21, 0x08, 0x42, 0x10, 0xC0, 0x00, 0x88, 0x42, 0x10, 0x84, 0x21, 0x08, 0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00,
+  0x90, 0x84, 0x21, 0x08, 0x42, 0x10, 0xC0, 0x00, 0x88, 0x42, 0x10, 0x84, 0x21, 0x08, 0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84,
+  0x21, 0x08, 0x42, 0x10, 0xC0, 0x00, 0x88, 0x42, 0x10, 0x84, 0x21, 0x08, 0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84, 0x21, 0x08,
+  0x42, 0x10, 0xC0, 0x00, 0x88, 0x42, 0x10, 0x84, 0x21, 0x08, 0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84, 0x21, 0x08, 0x42, 0x10,
+  0xC0, 0x00, 0x88, 0x42, 0x10, 0x84, 0x21, 0x08, 0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84, 0x21, 0x08, 0x42, 0x10, 0xC0, 0x00,
+  0x88, 0x42, 0x10, 0x84, 0x21, 0x08, 0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84, 0x21, 0x08, 0x42, 0x10, 0xC0, 0x00, 0x88, 0x42,
+  0x10, 0x84, 0x21, 0x08, 0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84, 0x21, 0x08, 0x42, 0x10, 0xC0, 0x00, 0x88, 0x42, 0x10, 0x84,
+  0x21, 0x08, 0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84, 0x21, 0x08, 0x42, 0x10, 0xC0, 0x00, 0x88, 0x42, 0x10, 0x84, 0x21, 0x08,
+  0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84, 0x21, 0x08, 0x42, 0x10, 0xC0, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0x00,
+  0x00,
+};
+extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_array;
+extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_pressed;
 // USER START (Optionally insert additional static data)
+static int state_=0;
 // USER END
 
 /*********************************************************************
@@ -53,9 +81,16 @@
 */
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
   { WINDOW_CreateIndirect, "Window", ID_WINDOW_0, 0, 0, 320, 240, 0, 0x0, 0 },
-  { BUTTON_CreateIndirect, "CliclMe", ID_BUTTON_0, 34, 40, 80, 20, 0, 0x0, 0 },
-  { CHECKBOX_CreateIndirect, "Checkbox", ID_CHECKBOX_0, 37, 87, 80, 20, 0, 0x0, 0 },
+  { BUTTON_CreateIndirect, "OnOff", ID_BUTTON_0, 32, 9, 144, 150, 0, 0x0, 0 },
+  { BUTTON_CreateIndirect, "AutoMan", ID_BUTTON_1, 34, 180, 82, 47, 0, 0x0, 0 },
+  { SPINBOX_CreateIndirect, "Spinbox", ID_SPINBOX_0, 154, 38, 80, 20, 0, 0x0, 0 },
+  { TEXT_CreateIndirect, "Text", ID_TEXT_0, 155, 76, 80, 20, 0, 0x0, 0 },
+  { IMAGE_CreateIndirect, "Led", ID_IMAGE_0, 138, 69, 150, 150, 0, 0, 0 },
+  { BUTTON_CreateIndirect, "Button", ID_BUTTON_2, 35, 206, 80, 32, 0, 0x0, 0 },
+  { BUTTON_CreateIndirect, "Button", ID_BUTTON_3, 34, 158, 80, 46, 0, 0x0, 0 },
+  { BUTTON_CreateIndirect, "Button", ID_BUTTON_4, 34, 111, 80, 42, 0, 0x0, 0 },
   // USER START (Optionally insert additional widgets)
+
   // USER END
 };
 
@@ -65,8 +100,39 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 *
 **********************************************************************
 */
+/*********************************************************************
+*
+*       _GetImageById
+*/
+static const void * _GetImageById(U32 Id, U32 * pSize) {
+  switch (Id) {
+  case ID_IMAGE_0_IMAGE_0:
+    *pSize = sizeof(_acImage_0);
+    return (const void *)_acImage_0;
+  }
+  return NULL;
+}
 
 // USER START (Optionally insert additional static code)
+static void _cbBMPButton(WM_MESSAGE * pMsg) {
+  GUI_RECT Rect;
+  int Index;
+
+  switch (pMsg->MsgId) {
+  case WM_PAINT:
+    WM_GetClientRectEx(pMsg->hWin, &Rect);
+
+    if(state_){
+      GUI_DrawBitmap(&bmp_button_pressed, 0, 0);
+    } else {
+      GUI_DrawBitmap(&bmp_button_array, 0, 0);
+    }
+    break;
+  default:
+    BUTTON_Callback(pMsg); // The original callback
+    break;
+  }
+}
 // USER END
 
 /*********************************************************************
@@ -74,27 +140,72 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
 *       _cbDialog
 */
 static void _cbDialog(WM_MESSAGE * pMsg) {
-  WM_HWIN hItem;
-  int     NCode;
-  int     Id;
+  const void * pData;
+  WM_HWIN      hItem;
+  U32          FileSize;
+  int          NCode;
+  int          Id;
   // USER START (Optionally insert additional variables)
   // USER END
 
   switch (pMsg->MsgId) {
   case WM_INIT_DIALOG:
     //
-    // Initialization of 'Checkbox'
+    // Initialization of 'Window'
     //
-    hItem = WM_GetDialogItem(pMsg->hWin, ID_CHECKBOX_0);
-    CHECKBOX_SetText(hItem, "CheckMe");
+    hItem = pMsg->hWin;
+    WINDOW_SetBkColor(hItem, GUI_MAKE_COLOR(0x00040404));
+    //
+    // Initialization of 'OnOff'
+    //
+    //hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
+    //BUTTON_SetText(hItem, "On/Off");
+    //
+    // Initialization of 'AutoMan'
+    //
+    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
+    BUTTON_SetText(hItem, "Auto/Man");
+    //
+    // Initialization of 'Text'
+    //
+    hItem = WM_GetDialogItem(pMsg->hWin, ID_TEXT_0);
+    TEXT_SetFont(hItem, GUI_FONT_13_1);
+    TEXT_SetTextColor(hItem, GUI_MAKE_COLOR(0x00000000));
+    //
+    // Initialization of 'Led'
+    //
+    hItem = WM_GetDialogItem(pMsg->hWin, ID_IMAGE_0);
+   pData = _GetImageById(ID_IMAGE_0_IMAGE_0, &FileSize);
+   IMAGE_SetBMP(hItem, pData, FileSize);
+   IMAGE_SetBitmap(hItem, &bmp_button_pressed);
     // USER START (Optionally insert additional code for further widget initialization)
+   hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
+   WM_SetCallback(hItem, _cbBMPButton);
     // USER END
     break;
   case WM_NOTIFY_PARENT:
     Id    = WM_GetId(pMsg->hWinSrc);
     NCode = pMsg->Data.v;
     switch(Id) {
-    case ID_BUTTON_0: // Notifications sent by 'CliclMe'
+    case ID_BUTTON_0: // Notifications sent by 'OnOff'
+      switch(NCode) {
+      case WM_NOTIFICATION_CLICKED:
+        // USER START (Optionally insert code for reacting on notification message)
+
+
+	  	state_ ^=1;
+
+        // USER END
+        break;
+      case WM_NOTIFICATION_RELEASED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      // USER START (Optionally insert additional code for further notification handling)
+      // USER END
+      }
+      break;
+    case ID_BUTTON_1: // Notifications sent by 'AutoMan'
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
@@ -108,7 +219,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       // USER END
       }
       break;
-    case ID_CHECKBOX_0: // Notifications sent by 'Checkbox'
+    case ID_SPINBOX_0: // Notifications sent by 'Spinbox'
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
@@ -118,7 +229,53 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
         // USER START (Optionally insert code for reacting on notification message)
         // USER END
         break;
+      case WM_NOTIFICATION_MOVED_OUT:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
       case WM_NOTIFICATION_VALUE_CHANGED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      // USER START (Optionally insert additional code for further notification handling)
+      // USER END
+      }
+      break;
+    case ID_BUTTON_2: // Notifications sent by 'Button'
+      switch(NCode) {
+      case WM_NOTIFICATION_CLICKED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      case WM_NOTIFICATION_RELEASED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      // USER START (Optionally insert additional code for further notification handling)
+      // USER END
+      }
+      break;
+    case ID_BUTTON_3: // Notifications sent by 'Button'
+      switch(NCode) {
+      case WM_NOTIFICATION_CLICKED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      case WM_NOTIFICATION_RELEASED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      // USER START (Optionally insert additional code for further notification handling)
+      // USER END
+      }
+      break;
+    case ID_BUTTON_4: // Notifications sent by 'Button'
+      switch(NCode) {
+      case WM_NOTIFICATION_CLICKED:
+        // USER START (Optionally insert code for reacting on notification message)
+        // USER END
+        break;
+      case WM_NOTIFICATION_RELEASED:
         // USER START (Optionally insert code for reacting on notification message)
         // USER END
         break;
@@ -151,7 +308,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 WM_HWIN CreateWindow(void);
 WM_HWIN CreateWindow(void) {
   WM_HWIN hWin;
-
+  GUI_Clear();
   hWin = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), _cbDialog, WM_HBKWIN, 0, 0);
   return hWin;
 }
@@ -161,12 +318,15 @@ WM_HWIN CreateWindow(void) {
 
 /*************************** End of file ****************************/
 
-void GUI_X_ErrorOut(const char * s) {}
-void GUITask(void) {
 
+void GUI_X_ErrorOut(const char * s) {}
+GUI_TIMER_TIME GUI_X_GetTime(void) {}
+void GUITask(void) {
+    GUI_Init();
+    //GUI_DrawBitmap(&bmp_button_pressed, 45, 20);
     CreateWindow();
 
-    while(1){GUI_Exec();};
+    while(1){ GUI_Exec();};
 }
 
 /*************************** End of file ****************************/

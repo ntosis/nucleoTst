@@ -249,6 +249,7 @@ void Task_500ms(void const *argument)
         portTickType xLastWakeTime;
         const portTickType xDelay = 200 / portTICK_RATE_MS;
         uint8_t internCounter=0;
+        GUI_Clear();
         //GUI_Exec();
         /*GUI_CURSOR_Show();
               GUI_CURSOR_Select(&GUI_CursorCrossL);
