@@ -154,7 +154,7 @@ int main(void)
  osThreadDef(task_10ms, Task_10ms, osPriorityNormal, 0, 128);
   TaskHandle_10ms = osThreadCreate(osThread(task_10ms), NULL);
 
-  osThreadDef(task_500ms, Task_500ms, osPriorityNormal, 0, 1024);
+  osThreadDef(task_500ms, Task_500ms, osPriorityNormal, 0, 512);
   TaskHandle_500ms = osThreadCreate(osThread(task_500ms), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -249,7 +249,8 @@ void Task_500ms(void const *argument)
         portTickType xLastWakeTime;
         const portTickType xDelay = 200 / portTICK_RATE_MS;
         uint8_t internCounter=0;
-        GUI_Clear();
+        GUITask();
+        //GUI_Clear();
         //GUI_Exec();
         /*GUI_CURSOR_Show();
               GUI_CURSOR_Select(&GUI_CursorCrossL);
@@ -267,7 +268,8 @@ void Task_500ms(void const *argument)
     			 //LEDfunction();
     			 volatile CAL_PARAM *gp = &CALinEE;
     			 volatile uint8_t ii =  oneLevelSystem_C;
-    			 GUITask();
+
+    			 GUI_Exec();
     			 //run every 1 second
     			  if(internCounter==2) {
 

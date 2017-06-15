@@ -69,10 +69,14 @@ static const U8 _acImage_0[463] = {
   0x40, 0x00, 0x84, 0x21, 0x08, 0x42, 0x10, 0x84, 0x40, 0x00, 0xC2, 0x10, 0x84, 0x21, 0x08, 0x42, 0x40, 0x00, 0xA1, 0x08, 0x42, 0x10, 0x84, 0x21, 0x40, 0x00, 0x90, 0x84, 0x21, 0x08, 0x42, 0x10, 0xC0, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0x00,
   0x00,
 };
-extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_array;
-extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_pressed;
+extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_green;
+extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_red;
+extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_auto_green;
+extern GUI_CONST_STORAGE GUI_BITMAP bmp_button_auto_black;
 // USER START (Optionally insert additional static data)
-static int state_=0;
+static int stateONOFF=0;
+static int stateAUTOMAN=0;
+
 // USER END
 
 /*********************************************************************
@@ -81,14 +85,14 @@ static int state_=0;
 */
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] = {
   { WINDOW_CreateIndirect, "Window", ID_WINDOW_0, 0, 0, 320, 240, 0, 0x0, 0 },
-  { BUTTON_CreateIndirect, "OnOff", ID_BUTTON_0, 32, 9, 144, 150, 0, 0x0, 0 },
-  { BUTTON_CreateIndirect, "AutoMan", ID_BUTTON_1, 34, 180, 82, 47, 0, 0x0, 0 },
+  { BUTTON_CreateIndirect, "OnOff", ID_BUTTON_0, 32, 9, 60, 60, 0, 0x0, 0 },
+  { BUTTON_CreateIndirect, "AutoMan", ID_BUTTON_1, 32, 71, 60, 60, 0, 0x0, 0 },
   { SPINBOX_CreateIndirect, "Spinbox", ID_SPINBOX_0, 154, 38, 80, 20, 0, 0x0, 0 },
   { TEXT_CreateIndirect, "Text", ID_TEXT_0, 155, 76, 80, 20, 0, 0x0, 0 },
   { IMAGE_CreateIndirect, "Led", ID_IMAGE_0, 138, 69, 150, 150, 0, 0, 0 },
   { BUTTON_CreateIndirect, "Button", ID_BUTTON_2, 35, 206, 80, 32, 0, 0x0, 0 },
   { BUTTON_CreateIndirect, "Button", ID_BUTTON_3, 34, 158, 80, 46, 0, 0x0, 0 },
-  { BUTTON_CreateIndirect, "Button", ID_BUTTON_4, 34, 111, 80, 42, 0, 0x0, 0 },
+  { BUTTON_CreateIndirect, "Button", ID_BUTTON_4, 34, 200, 80, 42, 0, 0x0, 0 },
   // USER START (Optionally insert additional widgets)
 
   // USER END
@@ -121,11 +125,29 @@ static void _cbBMPButton(WM_MESSAGE * pMsg) {
   switch (pMsg->MsgId) {
   case WM_PAINT:
     WM_GetClientRectEx(pMsg->hWin, &Rect);
-
-    if(state_){
-      GUI_DrawBitmap(&bmp_button_pressed, 0, 0);
+    if(stateONOFF){
+      GUI_DrawBitmap(&bmp_button_green, 0, 0);
     } else {
-      GUI_DrawBitmap(&bmp_button_array, 0, 0);
+      GUI_DrawBitmap(&bmp_button_red, 0, 0);
+    }
+    break;
+  default:
+    BUTTON_Callback(pMsg); // The original callback
+    break;
+  }
+}
+
+static void _cbAutoManButton(WM_MESSAGE * pMsg) {
+  GUI_RECT Rect;
+  int Index;
+
+  switch (pMsg->MsgId) {
+  case WM_PAINT:
+    WM_GetClientRectEx(pMsg->hWin, &Rect);
+    if(stateAUTOMAN){
+      GUI_DrawBitmap(&bmp_button_auto_green, 0, 0);
+    } else {
+      GUI_DrawBitmap(&bmp_button_auto_black, 0, 0);
     }
     break;
   default:
@@ -164,7 +186,8 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
     // Initialization of 'AutoMan'
     //
     hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_1);
-    BUTTON_SetText(hItem, "Auto/Man");
+    //BUTTON_SetText(hItem, "Auto/Man");
+    WM_SetCallback(hItem, _cbAutoManButton);
     //
     // Initialization of 'Text'
     //
@@ -177,7 +200,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
     hItem = WM_GetDialogItem(pMsg->hWin, ID_IMAGE_0);
    pData = _GetImageById(ID_IMAGE_0_IMAGE_0, &FileSize);
    IMAGE_SetBMP(hItem, pData, FileSize);
-   IMAGE_SetBitmap(hItem, &bmp_button_pressed);
+   //IMAGE_SetBitmap(hItem, &bmp_button_pressed);
     // USER START (Optionally insert additional code for further widget initialization)
    hItem = WM_GetDialogItem(pMsg->hWin, ID_BUTTON_0);
    WM_SetCallback(hItem, _cbBMPButton);
@@ -193,7 +216,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
         // USER START (Optionally insert code for reacting on notification message)
 
 
-	  	state_ ^=1;
+	  	stateONOFF ^=1;
 
         // USER END
         break;
@@ -209,6 +232,7 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+	  stateAUTOMAN ^=1;
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -308,7 +332,6 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
 WM_HWIN CreateWindow(void);
 WM_HWIN CreateWindow(void) {
   WM_HWIN hWin;
-  GUI_Clear();
   hWin = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), _cbDialog, WM_HBKWIN, 0, 0);
   return hWin;
 }
@@ -322,11 +345,11 @@ WM_HWIN CreateWindow(void) {
 void GUI_X_ErrorOut(const char * s) {}
 GUI_TIMER_TIME GUI_X_GetTime(void) {}
 void GUITask(void) {
-    GUI_Init();
+    //GUI_Init();
     //GUI_DrawBitmap(&bmp_button_pressed, 45, 20);
     CreateWindow();
 
-    while(1){ GUI_Exec();};
+    //while(1){ GUI_Exec();};
 }
 
 /*************************** End of file ****************************/
