@@ -584,7 +584,7 @@ GUI_CONST_STORAGE GUI_BITMAP bmp_button_red = {
   16, // BitsPerPixel
   (unsigned char *)_bmp_button_red,  // Pointer to picture data
   NULL,  // Pointer to palette
-  GUI_DRAW_BMP565
+  GUI_DRAW_BMPM565
 };
 GUI_CONST_STORAGE GUI_BITMAP bmp_button_green = {
   60, // xSize
@@ -593,7 +593,7 @@ GUI_CONST_STORAGE GUI_BITMAP bmp_button_green = {
   16, // BitsPerPixel
   (unsigned char *)_bmp_button_green,  // Pointer to picture data
   NULL,  // Pointer to palette
-  GUI_DRAW_BMP565
+  GUI_DRAW_BMPM565
 };
 
 

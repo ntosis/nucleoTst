@@ -26,10 +26,10 @@ Content     : Main resource header file of weather forecast demo
 //
 // Fonts
 //
-extern GUI_CONST_STORAGE GUI_FONT GUI_Font23S_AA4;
+/*extern GUI_CONST_STORAGE GUI_FONT GUI_Font23S_AA4;
 extern GUI_CONST_STORAGE GUI_FONT GUI_Font23SL_AA4;
 extern GUI_CONST_STORAGE GUI_FONT GUI_Font32S_AA4;
-extern GUI_CONST_STORAGE GUI_FONT GUI_Font32SL_AA4;
+extern GUI_CONST_STORAGE GUI_FONT GUI_Font32SL_AA4;*/
 
 //
 // Images
