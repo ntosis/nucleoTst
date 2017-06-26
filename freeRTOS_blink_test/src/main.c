@@ -113,7 +113,7 @@ int main(void)
     Configure_RTC();
 
     /* Configure RTC Calendar */
-    Configure_RTC_Calendar();
+   //Configure_RTC_Calendar();
   }
 
   /* Initialize all configured peripherals */
@@ -145,9 +145,6 @@ int main(void)
   /* USER CODE END RTOS_TIMERS */
   //name, thread, priority, instances, stacksz
   /* Create the threads and semaphore */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-
   osThreadDef(task_300ms, Task_300ms, osPriorityNormal, 0, 128);
   TaskHandle_300ms = osThreadCreate(osThread(task_300ms), NULL);
 
@@ -191,28 +188,14 @@ int main(void)
 
 /* USER CODE END 4 */
 
-/* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
-{
-
-  /* USER CODE BEGIN 5 */
-    while(1) {
-   	  //if(!HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) {
-	if(1){
-
-   	  }
-     }
-  /* USER CODE END 5 */ 
-}
-
 void Task_300ms(void const *argument)
 {
     portTickType xLastWakeTime;
-    const portTickType xDelay = 100 / portTICK_RATE_MS;
+    const portTickType xDelay = 300 / portTICK_RATE_MS;
     // Initialise the xLastWakeTime variable with the current time.
          xLastWakeTime = xTaskGetTickCount ();
 		while(1) {
-		        //actualTemperature();
+		        actualTemperature();
 			//readButton(xTaskGetTickCount ());
 			  // Wait for the next cycle.
 			vTaskDelayUntil( &xLastWakeTime, xDelay );
@@ -229,7 +212,7 @@ void Task_10ms(void const *argument)
 
 
     			 //readEncoder();
-    		    if(readPressure()<3400){
+    			if(readPressure()<3400){
     			GUI_PID_STATE State;
     		  	State.Pressed = 1;
 
@@ -247,7 +230,7 @@ void Task_10ms(void const *argument)
 void Task_500ms(void const *argument)
     {
         portTickType xLastWakeTime;
-        const portTickType xDelay = 200 / portTICK_RATE_MS;
+        const portTickType xDelay = 500 / portTICK_RATE_MS;
         uint8_t internCounter=0;
         GUITask();
         //GUI_Clear();
@@ -268,7 +251,7 @@ void Task_500ms(void const *argument)
     			 //LEDfunction();
     			 volatile CAL_PARAM *gp = &CALinEE;
     			 volatile uint8_t ii =  oneLevelSystem_C;
-
+    			 Ctrl_Subsystem_step();
     			 GUI_Exec();
     			 //run every 1 second
     			  if(internCounter==2) {

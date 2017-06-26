@@ -45,15 +45,22 @@
 /* Define used to indicate date/time updated */
 #define RTC_BKP_DATE_TIME_UPDTATED ((uint32_t)0x32F2)
 /* Private macro -------------------------------------------------------------*/
+#define  tmYearToCalendar(Y) ((Y) + 1970)  // full four digit year
+#define  CalendarYrToTm(Y)   ((Y) - 1970)
 /* Private variables ---------------------------------------------------------*/
+const char *monthName;
 /* Buffers used for displaying Time and Date */
-static uint8_t aShowTime[50] = {0};
-static uint8_t aShowDate[50] = {0};
+extern uint8_t aShowTime[50];
+extern uint8_t aShowDate[50];
 
 #if (USE_TIMEOUT == 1)
 uint32_t Timeout = 0; /* Variable used for Timeout management */
 #endif /* USE_TIMEOUT */
 
+struct timeStruct_t {
+int Hour,Minute,Second,Day,Year;
+int Month;
+} ;
 /* Private function prototypes -----------------------------------------------*/
 void     Configure_RTC_Clock(void);
 void     Configure_RTC(void);
@@ -62,5 +69,6 @@ uint32_t Enter_RTC_InitMode(void);
 uint32_t Exit_RTC_InitMode(void);
 uint32_t WaitForSynchro_RTC(void);
 void     Show_RTC_Calendar(void);
-
+bool getTime(const char *str);
+bool getDate(const char *str);
 #endif /* RTC_H_ */

@@ -88,13 +88,13 @@ void Ctrl_Subsystem_step(void)
    *  Inport: '<Root>/In3'
    *  UnitDelay: '<S2>/Unit Delay1'
    */
-  selectProgram = doubleClicked ^ Ctrl_Subsystem_DW.UnitDelay1_DSTATE;
+  // selectProgram = doubleClicked ^ Ctrl_Subsystem_DW.UnitDelay1_DSTATE;
 
   /* Logic: '<S4>/XOR1' incorporates:
    *  Inport: '<Root>/In4'
    *  UnitDelay: '<S4>/Unit Delay1'
    */
-  stateOfProgram = clicked ^ Ctrl_Subsystem_DW.UnitDelay1_DSTATE_fbw3;
+  //stateOfProgram = clicked ^ Ctrl_Subsystem_DW.UnitDelay1_DSTATE_fbw3;
 
   /* If: '<S3>/If' */
   if (!isCoolingOn) {

@@ -23,7 +23,7 @@
 
 #include "DIALOG.h"
 #include "mainGUI.h"
-
+#include "rtc.h"
 /*********************************************************************
 *
 *       Defines
@@ -105,7 +105,11 @@ static int stateAUTOMAN=0;
 extern bool clicked;
 extern bool doubleClicked;
 extern int8_t SOLLtemperature;
-extern uint8_t stateOfProgram;
+extern uint8_t Temperature;
+extern bool stateOfProgram;
+extern bool selectProgram;
+extern int16_t inputValue_Htng;
+extern int16_t inputValue_Coolg;
 //
 // Set pointer to a font, used for an easier exchange of fonts
 //
@@ -169,7 +173,7 @@ static void _cbText(WM_MESSAGE * pMsg) {
 
   switch (pMsg->MsgId) {
   case WM_PAINT:
-
+      GUI_Clear();
       Color = DARK_BLUE;
       ColorText = GUI_WHITE;
       ColorFrame = GUI_WHITE;
@@ -196,24 +200,35 @@ static void _cbText(WM_MESSAGE * pMsg) {
     //
     // Draw Text
     //
-    GUI_SetFont(pFont23);
-    GUI_SetTextMode(GUI_TM_TRANS);
+    GUI_SetFont(&GUI_Font16_ASCII);
     GUI_SetColor(ColorText);
-    Rect.x0 += 10;
-    GUI_DispStringInRect("Test", &Rect, GUI_TA_LEFT | GUI_TA_VCENTER);
-    //
-    // Display fan status
-    //
-    GUI_SetFont(pFont23);
     GUI_SetTextAlign(GUI_TA_LEFT | GUI_TA_VCENTER);
-    GUI_GotoXY(Rect.x1 - 90, Rect.y1 / 2);
-    if (1) {
-      GUI_DispString("Off");
-    } else if (0) {
-      GUI_DispString("On");
-    } else {
-      GUI_DispString("Auto");
-    }
+    GUI_GotoXY(Rect.x0, Rect.y0+20);
+    GUI_DispString("On/Off");
+	    GUI_GotoXY(Rect.x0+80, Rect.y0+20);
+	    GUI_DispDecSpace(stateOfProgram, 1);
+    GUI_GotoXY(Rect.x0, Rect.y0+40);
+    GUI_DispString("Man/Auto");
+	    GUI_GotoXY(Rect.x0+80, Rect.y0+40);
+            GUI_DispDecSpace(selectProgram, 2);
+    GUI_GotoXY(Rect.x0, Rect.y0+60);
+    GUI_DispString("PID_H");
+	    GUI_GotoXY(Rect.x0+80, Rect.y0+60);
+            GUI_DispDecSpace(inputValue_Htng, 2);
+    GUI_GotoXY(Rect.x0, Rect.y0+80);
+    GUI_DispString("PID_C");
+	    GUI_GotoXY(Rect.x0+80, Rect.y0+80);
+            GUI_DispDecSpace(inputValue_Coolg, 2);
+    GUI_GotoXY(Rect.x0, Rect.y0+100);
+    GUI_DispString("Temp.");
+	    GUI_GotoXY(Rect.x0+80, Rect.y0+100);
+            GUI_DispDecSpace(Temperature, 2);
+    GUI_GotoXY(Rect.x0, Rect.y0+120);
+    GUI_DispString("Time");
+	    GUI_GotoXY(Rect.x0+80, Rect.y0+120);
+	    Show_RTC_Calendar();
+	    GUI_DispString(aShowTime);
+
     //
     // Display temperature with a bigger font
     //
@@ -223,11 +238,11 @@ static void _cbText(WM_MESSAGE * pMsg) {
     //GUI_SetBkColor(Color);
     //GUI_Clear();
     //GUI_SetColor(GUI_WHITE);
-    GUI_SetFont(pFont32);
+    /*GUI_SetFont(pFont32);
     GUI_SetTextAlign(GUI_TA_RIGHT | GUI_TA_VCENTER);
     GUI_GotoXY(Rect.x1 - 20, Rect.y1 / 2);
     GUI_DispDecSpace(SOLLtemperature, 2);
-    GUI_DispString("�C");
+    GUI_DispString("�C");*/
     break;
   default:
     TEXT_Callback(pMsg); // The original callback
@@ -285,15 +300,20 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
   U32          FileSize;
   int          NCode;
   int          Id;
+  static WM_HTIMER hTimer;
+
   // USER START (Optionally insert additional variables)
   // USER END
 
   switch (pMsg->MsgId) {
+
   case WM_INIT_DIALOG:
+    hItem = pMsg->hWin;
+    //Init Timer
+    hTimer = WM_CreateTimer(hItem, 0, 1000, 0);
     //
     // Initialization of 'Window'
     //
-    hItem = pMsg->hWin;
     WINDOW_SetBkColor(hItem, GUI_MAKE_COLOR(0x00040404));
     //
     // Initialization of 'OnOff'
@@ -333,6 +353,11 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
     WM_SetCallback(hItem, _cbBMPButton);
     // USER END
     break;
+  case WM_TIMER:
+      //Refresh Text
+      WM_InvalidateWindow(WM_GetDialogItem(pMsg->hWin, ID_TEXT_0));
+      WM_RestartTimer(pMsg->Data.v, 1000);
+    break;
   case WM_NOTIFY_PARENT:
     Id    = WM_GetId(pMsg->hWinSrc);
     NCode = pMsg->Data.v;
@@ -342,8 +367,8 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
 
-
-	  	stateONOFF ^=1;
+		stateONOFF^=1;
+		stateOfProgram ^=1; //Move from Ctrl_Subsystem line 91, change it in Matlab
 	  	clicked=stateONOFF;
 
         // USER END
@@ -360,8 +385,11 @@ static void _cbDialog(WM_MESSAGE * pMsg) {
       switch(NCode) {
       case WM_NOTIFICATION_CLICKED:
         // USER START (Optionally insert code for reacting on notification message)
+	  if(stateOfProgram) {
 	  stateAUTOMAN ^=1;
+	  selectProgram ^=1;
 	  doubleClicked=stateAUTOMAN;
+	  }
         // USER END
         break;
       case WM_NOTIFICATION_RELEASED:
@@ -425,6 +453,7 @@ WM_HWIN CreateWindow(void);
 WM_HWIN CreateWindow(void) {
   WM_HWIN hWin;
   hWin = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate), _cbDialog, WM_HBKWIN, 0, 0);
+
   return hWin;
 }
 
@@ -435,7 +464,10 @@ WM_HWIN CreateWindow(void) {
 
 
 void GUI_X_ErrorOut(const char * s) {}
-GUI_TIMER_TIME GUI_X_GetTime(void) {}
+
+GUI_TIMER_TIME GUI_X_GetTime(void) {
+   return xTaskGetTickCount ();
+}
 void GUITask(void) {
     //GUI_Init();
     //GUI_DrawBitmap(&bmp_button_pressed, 45, 20);

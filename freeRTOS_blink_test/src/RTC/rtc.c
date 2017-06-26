@@ -2,7 +2,13 @@
 #include "rtc.h"
 
 
-
+uint8_t aShowTime[50]={0};
+uint8_t aShowDate[50]={0};
+static struct timeStruct_t tm;
+const char *monthName = {
+ "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+ "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
 /* Private functions ---------------------------------------------------------*/
 
 
@@ -147,18 +153,21 @@ void Configure_RTC_Calendar(void)
     /* Initialization Error */
     //LED_Blinking(LED_BLINK_ERROR);
   }
-
+  getDate(__DATE__);
+  getTime(__TIME__);
   /*##-3- Configure the Date ################################################*/
   /* Note: __LL_RTC_CONVERT_BIN2BCD helper macro can be used if user wants to*/
   /*       provide directly the decimal value:                               */
   /*       LL_RTC_DATE_Config(RTC, LL_RTC_WEEKDAY_MONDAY,                    */
   /*                          __LL_RTC_CONVERT_BIN2BCD(31), (...))           */
   /* Set Date: Monday March 31th 2015 */
-  LL_RTC_DATE_Config(RTC, LL_RTC_WEEKDAY_MONDAY, 0x31, LL_RTC_MONTH_MARCH, 0x15);
+  //LL_RTC_DATE_Config(RTC, LL_RTC_WEEKDAY_MONDAY, 0x31, LL_RTC_MONTH_MARCH, 0x15);
+  LL_RTC_DATE_Config(RTC, LL_RTC_WEEKDAY_MONDAY, tm.Day, tm.Month, tm.Year);
 
   /*##-4- Configure the Time ################################################*/
   /* Set Time: 11:59:55 PM*/
-  LL_RTC_TIME_Config(RTC, LL_RTC_TIME_FORMAT_PM, 0x11, 0x59, 0x55);
+  //LL_RTC_TIME_Config(RTC, LL_RTC_TIME_FORMAT_PM, 0x11, 0x59, 0x55);
+  LL_RTC_TIME_Config(RTC, LL_RTC_TIME_FORMAT_PM, tm.Hour, tm.Minute, tm.Second);
 
   /*##-5- Exit of initialization mode #######################################*/
   if (Exit_RTC_InitMode() != RTC_ERROR_NONE)
@@ -290,4 +299,30 @@ void LED_Blinking(uint32_t Period)
     Period2;
     HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
 }
+bool getTime(const char *str)
+{
+  int Hour, Min, Sec;
 
+  if (sscanf(str, "%d:%d:%d", &Hour, &Min, &Sec) != 3) return false;
+  tm.Hour = Hour;
+  tm.Minute = Min;
+  tm.Second = Sec;
+  return true;
+}
+
+bool getDate(const char *str)
+{
+  char Month[12];
+  int Day, Year;
+  uint8_t monthIndex;
+
+  if (sscanf(str, "%s %d %d", Month, &Day, &Year) != 3) return false;
+  for (monthIndex = 0; monthIndex < 12; monthIndex++) {
+    if (strcmp(Month, monthName[monthIndex]) == 0) break;
+  }
+  if (monthIndex >= 12) return false;
+  tm.Day = Day;
+  tm.Month = monthIndex + 1;
+  tm.Year = CalendarYrToTm(Year);
+  return true;
+}
