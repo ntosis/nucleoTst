@@ -4,6 +4,7 @@
 
 #include "hardware_init.h"
 #include "GUI.h"
+#include "spi.h"
 
 extern GPIO_InitTypeDef gpioInit;
 extern ADC_ChannelConfTypeDef adcChannel1;

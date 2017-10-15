@@ -130,7 +130,7 @@ static void SPI_DMAHalfTransmitCplt(struct __DMA_HandleTypeDef *hdma);
 static void SPI_DMAHalfReceiveCplt(struct __DMA_HandleTypeDef *hdma);
 static void SPI_DMAHalfTransmitReceiveCplt(struct __DMA_HandleTypeDef *hdma);
 static void SPI_DMAError(struct __DMA_HandleTypeDef *hdma);
-static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(struct __SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
+ HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(struct __SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
 /**
   * @}
   */
@@ -2176,7 +2176,7 @@ static void SPI_DMAError(struct __DMA_HandleTypeDef *hdma)
   * @param  Timeout: Timeout duration
   * @retval HAL status
   */
-static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(struct __SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus Status, uint32_t Timeout)  
+HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(struct __SPI_HandleTypeDef *hspi, uint32_t Flag, FlagStatus Status, uint32_t Timeout)
 {
   uint32_t tickstart = 0;
 

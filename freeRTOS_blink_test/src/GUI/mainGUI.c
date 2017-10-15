@@ -173,6 +173,7 @@ static void _cbText(WM_MESSAGE * pMsg) {
 
   switch (pMsg->MsgId) {
   case WM_PAINT:
+
       GUI_Clear();
       Color = DARK_BLUE;
       ColorText = GUI_WHITE;
@@ -243,6 +244,8 @@ static void _cbText(WM_MESSAGE * pMsg) {
     GUI_GotoXY(Rect.x1 - 20, Rect.y1 / 2);
     GUI_DispDecSpace(SOLLtemperature, 2);
     GUI_DispString("�C");*/
+
+
     break;
   default:
     TEXT_Callback(pMsg); // The original callback

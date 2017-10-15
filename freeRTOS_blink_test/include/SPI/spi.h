@@ -43,13 +43,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal_spi.h"
 #include "stm32l1xx_hal_dma.h"
+#include "stm32l1xx_hal_uart.h"
 
-
-extern void spi_init();
-extern void spi_transfer_sync (uint8_t * dataout, uint8_t * datain, uint8_t len);
-extern void spi_transmit_sync (uint8_t * dataout, uint8_t len);
-extern uint8_t spi_fast_shift (uint8_t data);
-extern SPI_HandleTypeDef SpiHandle;
+#include "hardware_init.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -94,6 +90,16 @@ extern SPI_HandleTypeDef SpiHandle;
 /* Exported macro ------------------------------------------------------------*/
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 /* Exported functions ------------------------------------------------------- */
+void spi_send_U16(uint16_t data);
+void spi_send_U8(uint8_t data);
+uint8_t spi_send_read_U8(uint8_t *send,uint8_t *receive);
+extern bool spi_TFT_busy_flag;
+extern void spi_init();
+extern void spi_transfer_sync (uint8_t * dataout, uint8_t * datain, uint8_t len);
+extern void spi_transmit_sync (uint8_t * dataout, uint8_t len);
+extern uint8_t spi_fast_shift (uint8_t data);
+extern SPI_HandleTypeDef SpiHandle;
+extern UART_HandleTypeDef huart2;
 
 #endif /* __MAIN_H */
 

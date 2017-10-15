@@ -118,13 +118,40 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  GUI_Init();
+  initTempSens();
+  __USART2_CLK_ENABLE();
+
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    GPIO_InitStructure.Pin = GPIO_PIN_2;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Alternate = GPIO_AF7_USART2;
+    GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    GPIO_InitStructure.Pin = GPIO_PIN_3;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    huart2.Instance        = USART2;
+    huart2.Init.BaudRate   = 115200;
+    huart2.Init.WordLength = UART_WORDLENGTH_8B;
+    huart2.Init.StopBits   = UART_STOPBITS_1;
+    huart2.Init.Parity     = UART_PARITY_NONE;
+    huart2.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    huart2.Init.Mode       = UART_MODE_TX_RX;
+
+    if (HAL_UART_Init(&huart2) != HAL_OK)
+        asm("bkpt 255");
+  //GUI_Init();
   WM_SetCreateFlags(WM_CF_MEMDEV);
-  //initTempSens();
+
   //HAL_MspInit();
   //initRtrEncoder();
   //initLEDs();
-  ConfigureADC();
+  //ConfigureADC();
+
   pid_Init(K_P_Htng*SCALING_FACTOR,K_I_Htng*SCALING_FACTOR,K_D_Htng*SCALING_FACTOR,&pidData_Htng);
   pid_Init(K_P_Coolg*SCALING_FACTOR,K_I_Coolg*SCALING_FACTOR,K_D_Coolg*SCALING_FACTOR,&pidData_Coolg);
   //HAL_SPI_MspInit(&SpiHandle);
@@ -195,7 +222,8 @@ void Task_300ms(void const *argument)
     // Initialise the xLastWakeTime variable with the current time.
          xLastWakeTime = xTaskGetTickCount ();
 		while(1) {
-		        actualTemperature();
+
+		        //actualTemperature();
 			//readButton(xTaskGetTickCount ());
 			  // Wait for the next cycle.
 			vTaskDelayUntil( &xLastWakeTime, xDelay );
@@ -205,25 +233,23 @@ void Task_300ms(void const *argument)
 void Task_10ms(void const *argument)
     {
         portTickType xLastWakeTime;
-        const portTickType xDelay = 10 / portTICK_RATE_MS;
+        const portTickType xDelay = 500 / portTICK_RATE_MS;
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
     		while(1) {
-
-
     			 //readEncoder();
-    			if(readPressure()<3400){
+    			if(1){
     			GUI_PID_STATE State;
     		  	State.Pressed = 1;
 
-    			//GUI_TOUCH_StoreStateEx(&State);
-    			GUI_TOUCH_Exec(); // Touch Screen
+    		  	 // Touch Screen
+    			GUI_TOUCH_Exec();
     		    }
     		    else {
     			GUI_TOUCH_StoreState(-1,-1);
     		    }
     			  // Wait for the next cycle.
-    			vTaskDelayUntil( &xLastWakeTime, xDelay );
+    		vTaskDelayUntil( &xLastWakeTime, xDelay );
     		}
     	}
 
@@ -232,7 +258,8 @@ void Task_500ms(void const *argument)
         portTickType xLastWakeTime;
         const portTickType xDelay = 500 / portTICK_RATE_MS;
         uint8_t internCounter=0;
-        GUITask();
+        char buffer[10]= {0};
+        //GUITask();
         //GUI_Clear();
         //GUI_Exec();
         /*GUI_CURSOR_Show();
@@ -251,9 +278,10 @@ void Task_500ms(void const *argument)
     			 //LEDfunction();
     			 volatile CAL_PARAM *gp = &CALinEE;
     			 volatile uint8_t ii =  oneLevelSystem_C;
-    			 Ctrl_Subsystem_step();
-    			 GUI_Exec();
+    			 //Ctrl_Subsystem_step();
+    			 //GUI_Exec();
     			 //run every 1 second
+    			//TFTWriteCmd(0x29);
     			  if(internCounter==2) {
 
     				      //Ctrl_Subsystem_step();

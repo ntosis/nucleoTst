@@ -38,7 +38,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ili9163.h"
-extern SPI_HandleTypeDef SpiHandle;
+#include "spi.h"
 
 /** @addtogroup BSP
   * @{
@@ -81,6 +81,29 @@ extern SPI_HandleTypeDef SpiHandle;
 /** @defgroup ST7735_Private_Variables
   * @{
   */
+enum {
+  MemoryAccessControlNormalOrder,
+  MemoryAccessControlReverseOrder
+} MemoryAccessControlRefreshOrder;
+
+enum {
+  MemoryAccessControlColorOrderBGR,
+  MemoryAccessControlColorOrderRGB
+} MemoryAccessControlColorOrder;
+
+enum {
+    ColumnAddressSet = 0x2a,
+    PageAddressSet = 0x2b,
+    MemoryWrite = 0x2c,
+    MemoryAccessControl = 0x36,
+    WriteDisplayBrightness = 0x51
+} ILI9341Register;
+/*
+static lcdProperties_t  lcdProperties = { 240, 320, true, true, true };
+static lcdOrientation_t lcdOrientation = LCD_ORIENTATION_PORTRAIT;
+*/
+static unsigned char lcdPortraitConfig = 0;
+static unsigned char lcdLandscapeConfig = 0;
 
 
 LCD_DrvTypeDef   st7735_drv =
@@ -575,59 +598,51 @@ void Tick(uint16_t i)
 }
 void TFTWriteCmd(const uint16_t command)
 {
+	/* wait for busy flag to be false */
+	while(spi_TFT_busy_flag);
+	/* set busy flag to high*/
+	spi_TFT_busy_flag = 1;
 
-	__HIGH(LCD_RD); //HIGH Read pin, this pin drives the IC, HIGH = send data, LOW = Receive data
-	GPIOB->ODR &=  ~((1<<0)); //LOW CS
-	GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS to send command
-	asm("nop");
-	//Transfer high Byte
-	uint8_t hi = (uint8_t)(command>>8);
-	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-	GPIOB->ODR |=  ((hi<<3)&0b11111111000); //DATA
-	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
-	asm("nop");
-	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-	//Transfer low byte
-	uint8_t lo = (uint8_t)(command);
-	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-	GPIOB->ODR |=  ((lo<<3)&0b11111111000); //DATA
-	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
-	asm("nop");
-	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-	asm("nop");
+	 /* low TFT CS */
+	GPIOB->ODR &=  ~((1<<6));
+
+	/* low RS to send command */
+	GPIOC->ODR &=  ~((1<<8)&PORTAMSK_RS_W_R);
+
+	spi_send_U16(command);
+	/*reset busy flag*/
+	spi_TFT_busy_flag = 0;
+
 	//Reset pins, ports etc.
-	//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
-	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-	GPIOA->ODR &=  ~(0xFF&0b0000000000010001); //CLEAR RS RD
-	GPIOB->ODR |=  ((1<<0)); //HIGH CS
+	GPIOC->ODR &=  ~(0xFF&0b0000000100000000); //CLEAR RS
+	GPIOB->ODR |=  ((1<<6)); //HIGH CS
 }
 
 void TFTWriteData(const uint16_t data)
 {
+    /* wait for busy flag to be false */
+    while(spi_TFT_busy_flag);
 
-	__HIGH(LCD_RD); //HIGH Read pin, this pin drives the IC, HIGH = send data, LOW = Receive data
-	GPIOB->ODR &=  ~((1<<0)); //LOW CS
-	GPIOA->ODR |=  ((1<<4)&PORTAMSK_RS_W_R); //high RS to send data
-	asm("nop");
-	//Transfer high byte
-	uint8_t hi = (uint8_t)(data>>8);
-	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-	GPIOB->ODR |=  ((hi<<3)&0b11111111000); //DATA
-	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
-	asm("nop");
-	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-	//Transfer low byte
-	uint8_t lo = (uint8_t)(data);
-	GPIOB->ODR &=  ~(0xFFFF&0b11111111000); //Clear all data pins
-	GPIOB->ODR |=  ((lo<<3)&0b11111111000); //DATA
-	GPIOA->ODR &=  ~((1<<1)&PORTAMSK_RS_W_R); //LOW WR
-	asm("nop");
-	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-	asm("nop");
-	//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
-	GPIOA->ODR &=  ~(0xFF&0b0000000000010001); //CLEAR RS RD
-	GPIOB->ODR |=  ((1<<0)); //HIGH CS
+    /* set busy flag to high*/
+    spi_TFT_busy_flag = 1;
+
+    /* low TFT CS */
+    GPIOB->ODR &=  ~((1<<6));
+
+    /* HIGH RS to send Data */
+    GPIOC->ODR |=  ((1<<8)&PORTAMSK_RS_W_R);
+
+    /* send spi stream */
+    spi_send_U16(data);
+
+    /*reset busy flag*/
+    spi_TFT_busy_flag = 0;
+
+    //Reset pins, ports etc.
+    GPIOC->ODR &=  ~(0xFF&0b0000000100000000); //CLEAR RS
+    GPIOB->ODR |=  ((1<<6)); //HIGH CS
 }
+
 void TFTSetWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
 {
 	TFTWriteCmd(ST7735_CASET);   /* col address command */
@@ -644,36 +659,12 @@ void TFTSetWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
 }
 uint16_t TFTReadData()
 {
-	//volatile uint8_t  i = data;
-	__HIGH(LCD_RD);
-	GPIOB->MODER &=  ~(0b00000000001111111111111111000000);
-	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
+	GPIOB->ODR &=  ~((1<<6)); //LOW CS
 
-	GPIOA->ODR |=  ((1<<4)&PORTAMSK_RS_W_R); //high RS
-	GPIOA->ODR |=  ((1<<1)&PORTAMSK_RS_W_R); //HIGH WR
-	asm("nop");
-	//GPIOB->ODR &=  ~((1<<0)); //LOW CS
-	GPIOA->ODR &=  ~((1<<0)&PORTAMSK_RS_W_R); //LOW RD
-
-	uint16_t hi = GPIOB->IDR;//DATA
-	asm("nop");
-	GPIOA->ODR |=  ((1<<0)&PORTAMSK_RS_W_R); //HIGH RD
-	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
-	asm("nop");
-	GPIOA->ODR &=  ~((1<<0)&PORTAMSK_RS_W_R); //LOW RD
-
-	uint16_t lo = GPIOB->IDR;//DATA
-	asm("nop");
-	GPIOA->ODR |=  ((1<<0)&PORTAMSK_RS_W_R); //HIGH RD
-	//GPIOA->ODR &=  ~((1<<4)&PORTAMSK_RS_W_R); //LOW RS
-
-	//GPIOB->ODR &=  ~(0xFF&0b11111111000); //Clear all data pins
-	//GPIOA->ODR &=  ~(0xFF&0b0000000000010010); //CLEAR RS WR
-	//GPIOB->ODR |=  ((1<<0)); //HIGH CS
-	GPIOB->MODER |= 0b0101010101010101000000;
-
-	uint16_t indata = ((hi&0b11111111000)<<5)|((lo&0b11111111000)>>3);
-
+	uint8_t temp[2]={0};
+	HAL_SPI_Receive(&SpiHandle,temp,2,5);
+	uint16_t indata = ((temp[0])<<8)|((temp[1]));
+	GPIOB->ODR |=  ((1<<6)); //HIGH CS
 	return indata;
 }
 void TFTPixel(uint16_t x, uint16_t y, uint16_t color)
@@ -683,6 +674,738 @@ void TFTPixel(uint16_t x, uint16_t y, uint16_t color)
 
 	TFTWriteData(color >> 8);
 	TFTWriteData(color);
+}
+void ili9486_ini2(void) {
+		TFTWriteCmd(0xB0);
+    		TFTWriteData(0x00);
+    		TFTWriteCmd(0x11);
+    		HAL_Delay(10);
+
+    		TFTWriteCmd(0xB3);
+    		TFTWriteData(0x02);
+    		TFTWriteData(0b00010100);
+    		//TFTWriteData(0x00);
+    		//TFTWriteData(0x00);
+
+    		TFTWriteCmd(0xC0);
+    		TFTWriteData(0b01110);//13
+    		TFTWriteData(0b01110);//480
+
+
+    		TFTWriteCmd(0xC1);
+    		TFTWriteData(0b01100000);//TFTWriteData(0x08);
+    		TFTWriteData(0x0);//TFTWriteData(0x16);//CLOCK
+
+
+    		TFTWriteCmd(0xC4);
+    		TFTWriteData(0x0b00110011);
+
+    		TFTWriteCmd(0xC6);
+    		TFTWriteData(0b0001000);
+    		TFTWriteData(0x0);
+
+    		/*TFTWriteCmd(0xC8);//GAMMA
+    		TFTWriteData(0x03);
+    		TFTWriteData(0x03);
+    		TFTWriteData(0x13);
+    		TFTWriteData(0x5C);
+    		TFTWriteData(0x03);
+    		TFTWriteData(0x07);
+    		TFTWriteData(0x14);
+    		TFTWriteData(0x08);
+    		TFTWriteData(0x00);
+    		TFTWriteData(0x21);
+    		TFTWriteData(0x08);
+    		TFTWriteData(0x14);
+    		TFTWriteData(0x07);
+    		TFTWriteData(0x53);
+    		TFTWriteData(0x0C);
+    		TFTWriteData(0x13);
+    		TFTWriteData(0x03);
+    		TFTWriteData(0x03);
+    		TFTWriteData(0x21);
+    		TFTWriteData(0x00);*/
+
+    		TFTWriteCmd(0x35);
+    		TFTWriteData(0x00);
+
+    		TFTWriteCmd(0x36);
+    		TFTWriteData(0x00);
+
+    		TFTWriteCmd(0x3A);
+    		TFTWriteData(0b01010101);
+
+    		TFTWriteCmd(0x44);
+    		TFTWriteData(0x00);
+    		TFTWriteData(0x01);
+
+    		/*TFTWriteCmd(0xB6);
+    		TFTWriteData(0x00);
+    		TFTWriteData(0x22);//0 GS SS SM ISC[3:0];其中GS SS控制显示方向，同时修改R36
+    		TFTWriteData(0x3B);*/
+
+    		/*TFTWriteCmd(0xD0);
+    		TFTWriteData(0x07);
+    		TFTWriteData(0x07);//VCI1
+    		TFTWriteData(0x1D);//VRH*/
+
+    		/*TFTWriteCmd(0xD1);
+    		TFTWriteData(0x00);
+    		TFTWriteData(0x03);//VCM
+    		TFTWriteData(0x00);//VDV*/
+
+    		/*TFTWriteCmd(0xD2);
+    		TFTWriteData(0x03);
+    		TFTWriteData(0x14);
+    		TFTWriteData(0x04);*/
+
+    		TFTWriteCmd(0x29);
+    		HAL_Delay(2000);
+
+    		TFTWriteCmd(0xB4);
+    		TFTWriteData(0x00);
+    		HAL_Delay(2000);
+    		//TFTWriteCmd(0x2C);
+}
+void ili9486_ini(void) {
+        TFTWriteCmd(0x11);		// Sleep OUT
+    	HAL_Delay(50);
+
+    	TFTWriteCmd(0xF2);		// ?????
+    	TFTWriteData(0x1C);
+    	TFTWriteData(0xA3);
+    	TFTWriteData(0x32);
+    	TFTWriteData(0x02);
+    	TFTWriteData(0xb2);
+    	TFTWriteData(0x12);
+    	TFTWriteData(0xFF);
+    	TFTWriteData(0x12);
+    	TFTWriteData(0x00);
+
+    	TFTWriteCmd(0xF1);		// ?????
+    	TFTWriteData(0x36);
+    	TFTWriteData(0xA4);
+
+    	TFTWriteCmd(0xF8);		// ?????
+    	TFTWriteData(0x21);
+    	TFTWriteData(0x04);
+
+    	TFTWriteCmd(0xF9);		// ?????
+    	TFTWriteData(0x00);
+    	TFTWriteData(0x08);
+
+    	TFTWriteCmd(0xC0);		// Power Control 1
+    	TFTWriteData(0x0d);
+    	TFTWriteData(0x0d);
+
+    	TFTWriteCmd(0xC1);		// Power Control 2
+    	TFTWriteData(0x43);
+    	TFTWriteData(0x00);
+
+    	TFTWriteCmd(0xC2);		// Power Control 3
+    	TFTWriteData(0x00);
+
+    	TFTWriteCmd(0xC5);		// VCOM Control
+    	TFTWriteData(0x00);
+    	TFTWriteData(0x48);
+
+    	TFTWriteCmd(0xB6);		// Display Function Control
+    	TFTWriteData(0x00);
+    	TFTWriteData(0x22);		// 0x42 = Rotate display 180 deg.
+    	TFTWriteData(0x3B);
+
+    	TFTWriteCmd(0xE0);		// PGAMCTRL (Positive Gamma Control)
+    	TFTWriteData(0x0f);
+    	TFTWriteData(0x24);
+    	TFTWriteData(0x1c);
+    	TFTWriteData(0x0a);
+    	TFTWriteData(0x0f);
+    	TFTWriteData(0x08);
+    	TFTWriteData(0x43);
+    	TFTWriteData(0x88);
+    	TFTWriteData(0x32);
+    	TFTWriteData(0x0f);
+    	TFTWriteData(0x10);
+    	TFTWriteData(0x06);
+    	TFTWriteData(0x0f);
+    	TFTWriteData(0x07);
+    	TFTWriteData(0x00);
+
+    	TFTWriteCmd(0xE1);		// NGAMCTRL (Negative Gamma Control)
+    	TFTWriteData(0x0F);
+    	TFTWriteData(0x38);
+    	TFTWriteData(0x30);
+    	TFTWriteData(0x09);
+    	TFTWriteData(0x0f);
+    	TFTWriteData(0x0f);
+    	TFTWriteData(0x4e);
+    	TFTWriteData(0x77);
+    	TFTWriteData(0x3c);
+    	TFTWriteData(0x07);
+    	TFTWriteData(0x10);
+    	TFTWriteData(0x05);
+    	TFTWriteData(0x23);
+    	TFTWriteData(0x1b);
+    	TFTWriteData(0x00);
+
+    	TFTWriteCmd(0x20);		// Display Inversion OFF
+    	TFTWriteData(0x00);//C8
+
+    	TFTWriteCmd(0x36);		// Memory Access Control
+    	TFTWriteData(0x0A);
+
+    	TFTWriteCmd(0x3A);		// Interface Pixel Format
+    	TFTWriteData(0x55);
+
+    	TFTWriteCmd(0x2A);		// Column Addess Set
+    	TFTWriteData(0x00);
+    	TFTWriteData(0x00);
+    	TFTWriteData(0x01);
+    	TFTWriteData(0xDF);
+
+    	TFTWriteCmd(0x002B);		// Page Address Set
+    	TFTWriteData(0x00);
+    	TFTWriteData(0x00);
+    	TFTWriteData(0x01);
+    	TFTWriteData(0x3f);
+    	HAL_Delay(50);
+    	TFTWriteCmd(0x0029);		// Display ON
+    	//TFTWriteCmd(0x002C); // Memory Write
+}
+void ili9481_ini(void) {
+    TFTWriteCmd(0x11); TFTWriteData(0);
+    HAL_Delay(50);
+    TFTWriteCmd(0xD0);
+    TFTWriteData(3);
+    TFTWriteData(0x07);
+    TFTWriteData(0x42);
+    TFTWriteData(0x18);
+    TFTWriteCmd(0xD1);
+    TFTWriteData(3);
+    TFTWriteData(0x00);
+    TFTWriteData(0x07);
+    TFTWriteData(0x10);
+    TFTWriteCmd(0xD2);
+    TFTWriteData(2);
+    TFTWriteData(0x01);
+    TFTWriteData(0x02);
+    TFTWriteCmd(0xC0);
+    TFTWriteData(5);
+    TFTWriteData(0x10);
+    TFTWriteData(0x3B);
+    TFTWriteData(0x00);
+    TFTWriteData(0x02);
+    TFTWriteData(0x11);
+    TFTWriteCmd(0xC5);
+    TFTWriteData(1);
+    TFTWriteData(0x03);
+    TFTWriteCmd(0x36);
+    TFTWriteData(1);
+    TFTWriteData(0x0A);
+    TFTWriteCmd(0x3A);
+    TFTWriteData(1);
+    TFTWriteData(0x55);
+    TFTWriteCmd(0x2A);
+    TFTWriteData(4);
+    TFTWriteData(0x00);
+    TFTWriteData(0x00);
+    TFTWriteData(0x01);
+    TFTWriteData(0x3F);
+    TFTWriteCmd(0x2B);
+    TFTWriteData(4);
+    TFTWriteData(0x00);
+    TFTWriteData(0x00);
+    TFTWriteData(0x01);
+    TFTWriteData(0xE0);
+    HAL_Delay(50);
+    TFTWriteCmd(0x29);
+    TFTWriteData(0);
+    TFTWriteCmd(0x2C);
+    TFTWriteData(0);
+
+       HAL_Delay(500);
+       //setAddrWindow(0, 0, TFTWIDTH-1, TFTHEIGHT-1);
+}
+void ili9341_init_original(){
+    //************* Start Initial Sequence **********//
+    TFTWriteCmd(0x0);
+    HAL_Delay(200);
+
+    TFTWriteCmd(0xCB);
+    TFTWriteData (0x39);
+    TFTWriteData (0x2C);
+    TFTWriteData (0x00);
+    TFTWriteData (0x34);
+    TFTWriteData (0x02);
+    TFTWriteCmd(0xCF);
+    TFTWriteData (0x00);
+    TFTWriteData (0XC1);
+    TFTWriteData (0X30);
+    TFTWriteCmd(0xE8);
+    TFTWriteData (0x85);
+    TFTWriteData (0x00);
+    TFTWriteData (0x78);
+    TFTWriteCmd(0xEA);
+    TFTWriteData (0x00);
+    TFTWriteData (0x00);
+    TFTWriteCmd(0xED);
+    TFTWriteData (0x64);
+    TFTWriteData (0x03);
+    TFTWriteData (0x12);
+    TFTWriteData (0x81);
+    TFTWriteCmd(0xF7);
+    TFTWriteData (0x20);
+    TFTWriteCmd(0xC0); //Power control
+    TFTWriteData (0x1b); //VRH[5:0]
+    TFTWriteCmd(0xC1); //Power control
+    TFTWriteData (0x10); //SAP[2:0];BT[3:0]
+    TFTWriteCmd(0xC5); //VCM control
+    TFTWriteData (0x2d);
+    TFTWriteData (0x33);
+    //TFTWriteCmd(0xC7);
+    //VCM control2
+    //TFTWriteData (0xCf);
+    TFTWriteCmd(0x36);
+    // Memory Access Control
+    TFTWriteData (0x48);
+    TFTWriteCmd(0xB1);
+    TFTWriteData (0x00);
+    TFTWriteData (0x1d);
+    TFTWriteCmd(0xB6);
+    // Display Function Control
+    TFTWriteData (0x0A);
+    TFTWriteData (0x02);
+    TFTWriteCmd(0xF2);
+    // 3Gamma Function Disable
+    TFTWriteData (0x00);
+    TFTWriteCmd(0x26);
+    //Gamma curve selected
+    TFTWriteData (0x01);
+    TFTWriteCmd(0xE0);
+    //Set Gamma
+    TFTWriteData (0x0F);
+    TFTWriteData (0x3a);
+    TFTWriteData (0x36);
+    TFTWriteData (0x0b);
+    TFTWriteData (0x0d);
+    TFTWriteData (0x06);
+    TFTWriteData (0x4c);
+    TFTWriteData (0x91);
+    TFTWriteData (0x31);
+    TFTWriteData (0x08);
+    TFTWriteData (0x10);
+    TFTWriteData (0x04);
+    TFTWriteData (0x11);
+    TFTWriteData (0x0c);
+    TFTWriteData (0x00);
+    TFTWriteCmd(0XE1);
+    //Set Gamma
+    TFTWriteData (0x00);
+    TFTWriteData (0x06);
+    TFTWriteData (0x0a);
+    TFTWriteData (0x05);
+    TFTWriteData (0x12);
+    TFTWriteData (0x09);
+    TFTWriteData (0x2c);
+    TFTWriteData (0x92);
+    TFTWriteData (0x3f);
+    TFTWriteData (0x08);
+    TFTWriteData (0x0e);
+    TFTWriteData (0x0b);
+    TFTWriteData (0x2e);
+    TFTWriteData (0x33);
+    TFTWriteData (0x0F);
+    TFTWriteCmd(0x11);
+    //Exit Sleep
+    HAL_Delay(120);
+    TFTWriteCmd(0x29);
+    //Display on
+    }
+
+void lcdInitIli9341(void)
+    {
+    // VCI=2.8V
+    //************* Reset LCD Driver ****************//
+    //************* Start Initial Sequence **********//
+    TFTWriteCmd(0);
+    HAL_Delay(250);
+    /*TFTWriteCmd(0xCF);
+    TFTWriteData (0x00);
+    TFTWriteData (0x83);
+    TFTWriteData (0X30);
+    TFTWriteCmd(0xED);
+    TFTWriteData (0x64);
+    TFTWriteData (0x03);
+    TFTWriteData (0X12);
+    TFTWriteData (0X81);
+    TFTWriteCmd(0xE8);
+    TFTWriteData (0x85);
+    TFTWriteData (0x01);
+    TFTWriteData (0x79);
+    TFTWriteCmd(0xCB);
+    TFTWriteData (0x39);
+    TFTWriteData (0x2C);
+    TFTWriteData (0x00);
+    TFTWriteData (0x34);
+    TFTWriteData (0x02);
+    TFTWriteCmd(0xF7);
+    TFTWriteData (0x20);
+
+    TFTWriteCmd(0xEA);
+    TFTWriteData (0x00);
+    TFTWriteData (0x00);*/
+    /*TFTWriteCmd(0xC0); //Power control
+    TFTWriteData (0b00000011); //VRH[5:0] 3V
+    TFTWriteCmd(0xC1); //Power control
+    TFTWriteData (0b00010011); //SAP[2:0];BT[3:0]
+    TFTWriteCmd(0xC5); //VCM control
+    TFTWriteData (0b00010000);
+    TFTWriteData (0b00110010);
+    //VCM control2
+    TFTWriteCmd(0xC7);
+    TFTWriteData (0b10111110);
+    // Memory Access Control
+    TFTWriteCmd(0x36);
+    TFTWriteData (0b00000000);
+    TFTWriteCmd(0xB1);
+    TFTWriteData (0b01);
+    TFTWriteData (0b00011011);
+    // Display Function Control
+    TFTWriteCmd(0xB6);
+    TFTWriteData(0b00001010);
+    TFTWriteData(0b00100001);
+    TFTWriteData(0b00011100);//248lines
+   /* // 3Gamma Function Disable
+    TFTWriteCmd(0xF2);
+    TFTWriteData (0x00);*/
+    /* Gamma curve selected
+    TFTWriteCmd(0x26);
+    TFTWriteData (0x01);
+    //Set Gamma
+    TFTWriteCmd(0xE0);
+    TFTWriteData (0x0F);
+    TFTWriteData (0x23);
+    TFTWriteData (0x1F);
+
+    TFTWriteData (0x09);
+    TFTWriteData (0x0f);
+    TFTWriteData (0x08);
+    TFTWriteData (0x4B);
+    TFTWriteData (0Xf2);
+    TFTWriteData (0x38);
+    TFTWriteData (0x09);
+    TFTWriteData (0x13);
+    TFTWriteData (0x03);
+    TFTWriteData (0x12);
+    TFTWriteData (0x07);
+    TFTWriteData (0x04);
+    //Set Gamma
+    TFTWriteCmd(0XE1);
+    TFTWriteData (0x00);
+    TFTWriteData (0x1d);
+    TFTWriteData (0x20);
+    TFTWriteData (0x02);
+    TFTWriteData (0x11);
+    TFTWriteData (0x07);
+    TFTWriteData (0x34);
+    TFTWriteData (0x81);
+    TFTWriteData (0x46);
+    TFTWriteData (0x06);
+    TFTWriteData (0x0e);
+    TFTWriteData (0x0c);
+    TFTWriteData (0x32);
+    TFTWriteData (0x38);
+    TFTWriteData (0x0F); */
+    //Exit Sleep
+    TFTWriteCmd(0x11);
+    HAL_Delay(120);
+    TFTWriteCmd(0x29);
+    //Display on
+}
+unsigned char lcdBuildMemoryAccessControlConfig(
+                        bool rowAddressOrder,
+                        bool columnAddressOrder,
+                        bool rowColumnExchange,
+                        bool verticalRefreshOrder,
+                        bool colorOrder,
+                        bool horizontalRefreshOrder){
+  unsigned char value = 0;
+  if(horizontalRefreshOrder) value |= 0x0004;
+  if(colorOrder) value |= 0x0008;
+  if(verticalRefreshOrder) value |= 0x0010;
+  if(rowColumnExchange) value |= 0x0020;
+  if(columnAddressOrder) value |= 0x0040;
+  if(rowAddressOrder) value |= 0x0080;
+  return value;
+}
+void ili9488_ini() {
+	TFTWriteCmd(ILI9488_CMD_SOFTWARE_RESET);
+	TFTWriteData(0x0);
+    	HAL_Delay(200);
+
+    	TFTWriteCmd(ILI9488_CMD_SLEEP_OUT);
+    		TFTWriteData(0x0);
+    	HAL_Delay(200);
+
+    	/** make it tRGB and reverse the column order */
+    	TFTWriteCmd(ILI9488_CMD_MEMORY_ACCESS_CONTROL);
+    	 		TFTWriteData(0x48);
+    	HAL_Delay(100);
+
+
+    	TFTWriteCmd(ILI9488_CMD_CABC_CONTROL_9);
+    		TFTWriteData(0x04);
+    	HAL_Delay(100);
+
+
+    	TFTWriteCmd(ILI9488_CMD_COLMOD_PIXEL_FORMAT_SET);
+    		TFTWriteData( 0x06);
+    	HAL_Delay(100);
+    	TFTWriteCmd(ILI9488_CMD_NORMAL_DISP_MODE_ON);
+    		TFTWriteData(0);
+    	HAL_Delay(100);
+
+    	(ILI9488_CMD_DISPLAY_ON);
+    		TFTWriteData(0);
+    	HAL_Delay(100);
+
+    	//ili9488_set_display_direction(LANDSCAPE);
+    	HAL_Delay(100);
+
+    	//ili9488_set_window(0, 0,p_opt->ul_width,p_opt->ul_height);
+    	//ili9488_set_foreground_color(p_opt->foreground_color);
+}
+
+void ili9341_ini_adafruit() {
+      TFTWriteCmd(0xCB);
+
+      TFTWriteData(0x39);
+
+      TFTWriteData(0x2C);
+
+      TFTWriteData(0x00);
+
+      TFTWriteData(0x34);
+
+      TFTWriteData(0x02);
+
+
+
+      TFTWriteCmd(0xCF);
+
+      TFTWriteData(0x00);
+
+      TFTWriteData(0XC1);
+
+      TFTWriteData(0X30);
+
+
+
+      TFTWriteCmd(0xE8);
+
+      TFTWriteData(0x85);
+
+      TFTWriteData(0x00);
+
+      TFTWriteData(0x78);
+
+
+
+      TFTWriteCmd(0xEA);
+
+      TFTWriteData(0x00);
+
+      TFTWriteData(0x00);
+
+
+
+      TFTWriteCmd(0xED);
+
+      TFTWriteData(0x64);
+
+      TFTWriteData(0x03);
+
+      TFTWriteData(0X12);
+
+      TFTWriteData(0X81);
+
+
+
+      TFTWriteCmd(0xF7);
+
+      TFTWriteData(0x20);
+
+
+
+      TFTWriteCmd(0xC0);    //Power control
+
+      TFTWriteData(0x23);   //VRH[5:0]
+
+
+
+      TFTWriteCmd(0xC1);    //Power control
+
+      TFTWriteData(0x10);   //SAP[2:0];BT[3:0]
+
+
+
+      TFTWriteCmd(0xC5);    //VCM control
+
+      TFTWriteData(0x3e);
+
+      TFTWriteData(0x28);
+
+
+
+      TFTWriteCmd(0xC7);    //VCM control2
+
+      TFTWriteData(0x86);  //--
+
+
+
+      TFTWriteCmd(0x36);    // Memory Access Control
+
+      TFTWriteData(0x48);
+
+
+
+      TFTWriteCmd(0x3A);
+
+      TFTWriteData(0x55);
+
+
+
+      TFTWriteCmd(0xB1);
+
+      TFTWriteData(0x00);
+
+      TFTWriteData(0x18);
+
+
+
+      TFTWriteCmd(0xB6);    // Display Function Control
+
+      TFTWriteData(0x08);
+
+      TFTWriteData(0x82);
+
+      TFTWriteData(0x27);
+
+
+
+      TFTWriteCmd(0xF2);    // 3Gamma Function Disable
+
+      TFTWriteData(0x00);
+
+
+
+      TFTWriteCmd(0x26);    //Gamma curve selected
+
+      TFTWriteData(0x01);
+
+
+
+      TFTWriteCmd(0xE0);    //Set Gamma
+
+      TFTWriteData(0x0F);
+
+      TFTWriteData(0x31);
+
+      TFTWriteData(0x2B);
+
+      TFTWriteData(0x0C);
+
+      TFTWriteData(0x0E);
+
+      TFTWriteData(0x08);
+
+      TFTWriteData(0x4E);
+
+      TFTWriteData(0xF1);
+
+      TFTWriteData(0x37);
+
+      TFTWriteData(0x07);
+
+      TFTWriteData(0x10);
+
+      TFTWriteData(0x03);
+
+      TFTWriteData(0x0E);
+
+      TFTWriteData(0x09);
+
+      TFTWriteData(0x00);
+
+
+
+      TFTWriteCmd(0XE1);    //Set Gamma
+
+      TFTWriteData(0x00);
+
+      TFTWriteData(0x0E);
+
+      TFTWriteData(0x14);
+
+      TFTWriteData(0x03);
+
+      TFTWriteData(0x11);
+
+      TFTWriteData(0x07);
+
+      TFTWriteData(0x31);
+
+      TFTWriteData(0xC1);
+
+      TFTWriteData(0x48);
+
+      TFTWriteData(0x08);
+
+      TFTWriteData(0x0F);
+
+      TFTWriteData(0x0C);
+
+      TFTWriteData(0x31);
+
+      TFTWriteData(0x36);
+
+      TFTWriteData(0x0F);
+
+
+
+      TFTWriteCmd(0x11);    //Exit Sleep
+
+   //   delayms(120);
+
+        HAL_Delay(200);
+
+
+
+      TFTWriteCmd(0x29);    //Display on
+}
+
+void ili9481_initGit(void) {
+    /* SLP_OUT - Sleep out */
+    TFTWriteCmd(0x11);
+    	HAL_Delay(50);
+    	/* Power setting */
+    	TFTWriteCmd(0xD0); TFTWriteData(0x07); TFTWriteData(0x42); TFTWriteData(0x18);
+    	/* VCOM */
+    	TFTWriteCmd( 0xD1);TFTWriteData(0x00);TFTWriteData(0x07);TFTWriteData(0x10);
+    	/* Power setting for norm. mode */
+    	TFTWriteCmd(0xD2);TFTWriteData(0x01);TFTWriteData(0x02);
+    	/* Panel driving setting */
+    	TFTWriteCmd(0xC0);TFTWriteData(0x10);TFTWriteData(0x3B);TFTWriteData(0x00);TFTWriteData(0x02);TFTWriteData( 0x11);
+    	/* Frame rate & inv. */
+    	TFTWriteCmd(0xC5);TFTWriteData(0x03);
+    	/* Pixel format */
+    	TFTWriteCmd(0x3A);TFTWriteData(0x55);
+    	/* Gamma */
+    	TFTWriteCmd(0xC8); TFTWriteData(0x00); TFTWriteData(0x32); TFTWriteData(0x36); TFTWriteData(0x45); TFTWriteData(0x06); TFTWriteData(0x16);
+    		TFTWriteData(0x37); TFTWriteData(0x75); TFTWriteData(0x77); TFTWriteData(0x54); TFTWriteData(0x0C); TFTWriteData(0x00);
+    	/* DISP_ON */
+	TFTWriteCmd(0x29);
+
 }
 /**
 * @}

@@ -1,17 +1,7 @@
 
 
 
-/**
-  ******************************************************************************
-  * @file    SPI/SPI_FullDuplex_ComDMA/Src/main.c
-  * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    01-July-2016
-  * @brief   This sample code shows how to use STM32L1xx SPI HAL API to transmit
-  *          and receive a data buffer with a communication process based on
-  *          DMA transfer.
-  *          The communication is done using 2 Boards.
-  ******************************************************************************
+/*
   * @attention
   *
   * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
@@ -43,10 +33,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "spi.h"
+bool spi_TFT_busy_flag = 0;
 
 /* Private variables ---------------------------------------------------------*/
 /* SPI handler declaration */
 SPI_HandleTypeDef SpiHandle;
+UART_HandleTypeDef huart2;
 
 /* Private function prototypes -----------------------------------------------*/
 static void Error_Handler(void);
@@ -74,9 +66,9 @@ void spi_init()
   /*##-1- Configure the SPI peripheral #######################################*/
   /* Set the SPI parameters */
   SpiHandle.Instance               = SPIx; //SPI1
-  SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   SpiHandle.Init.Direction         = SPI_DIRECTION_2LINES;
-  SpiHandle.Init.CLKPhase          = SPI_PHASE_1EDGE;
+  SpiHandle.Init.CLKPhase          = 0;
   SpiHandle.Init.CLKPolarity       = SPI_POLARITY_LOW;
   SpiHandle.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
   SpiHandle.Init.CRCPolynomial     = 10;
@@ -85,55 +77,109 @@ void spi_init()
   SpiHandle.Init.NSS               = SPI_NSS_SOFT;
   SpiHandle.Init.TIMode            = SPI_TIMODE_DISABLE;
 
-//#ifdef MASTER_BOARD
+
+
   SpiHandle.Init.Mode = SPI_MODE_MASTER;
-//#else
-  //SpiHandle.Init.Mode = SPI_MODE_SLAVE;
-//#endif /* MASTER_BOARD */
+
 
   if (HAL_SPI_Init(&SpiHandle) != HAL_OK)
   {
     /* Initialization Error */
-   // Error_Handler();
+    // Error_Handler();
   }
+    /* Peripheral clock enable */
+    __HAL_RCC_SPI1_CLK_ENABLE();
 
-/*#ifdef MASTER_BOARD
-  //* Configure User push-button
-  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_GPIO);
-  // Wait for User push-button press before starting the Communication
-  while (BSP_PB_GetState(BUTTON_USER) != GPIO_PIN_RESET)
-  {
-    BSP_LED_Toggle(LED2);
-    HAL_Delay(100);
-  }
-  BSP_LED_Off(LED2);
-#endif  // MASTER_BOARD */
-
+    /**SPI1 GPIO Configuration
+    PA5     ------> SPI1_SCK
+    PA6     ------> SPI1_MISO
+    PA7     ------> SPI1_MOSI
+    */
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 }
+void spi_send_U8(uint8_t data) {
+    /* enable SPE */
 
-/**
-  * @brief  System Clock Configuration
-  *         The system Clock is configured as follow :
-  *            System Clock source            = PLL (HSI)
-  *            SYSCLK(Hz)                     = 32000000
-  *            HCLK(Hz)                       = 32000000
-  *            AHB Prescaler                  = 1
-  *            APB1 Prescaler                 = 1
-  *            APB2 Prescaler                 = 1
-  *            HSI Frequency(Hz)              = 16000000
-  *            PLLMUL                         = 6
-  *            PLLDIV                         = 3
-  *            Flash Latency(WS)              = 1
-  * @retval None
-  */
-/**
-  * @brief  TxRx Transfer completed callback.
-  * @param  hspi: SPI handle
-  * @note   This example shows a simple way to report end of DMA TxRx transfer, and
-  *         you can add your own implementation.
-  * @retval None
-  */
+    SPI1->CR1 |= SPI_CR1_SPE;
+
+    /*send 8 bits*/
+    *((__IO uint8_t *)&SPI1->DR) = data;
+    /* wait until RXNE flag is set */
+    if(SPI_WaitOnFlagUntilTimeout(&SpiHandle, SPI_FLAG_RXNE, RESET, 2) != HAL_OK)
+     {
+      return;
+     }
+     /* Disable SPE */
+     SPI1->CR1 &= ~SPI_CR1_SPE;
+}
+void spi_send_U16(uint16_t data) {
+    /*declare local variables*/
+
+    uint8_t temp[2]={0};
+
+    /* enable SPE */
+
+    SPI1->CR1 |= SPI_CR1_SPE;
+
+    /* high bits*/
+    temp[0] = (uint8_t)((data>>8));
+    /* low bits */
+    temp[1] = (uint8_t)((data));
+
+    /*send the high 8 bits*/
+    *((__IO uint8_t *)&SPI1->DR) = temp[0];
+    /* wait until RXNE flag is set */
+    if(SPI_WaitOnFlagUntilTimeout(&SpiHandle, SPI_FLAG_RXNE, RESET, 2) != HAL_OK)
+     {
+      return;
+     }
+     /* send the low 8 bits */
+     *((__IO uint8_t *)&SPI1->DR) = temp[1];
+
+     /*Wait until RXNE flag is set */
+     if(SPI_WaitOnFlagUntilTimeout(&SpiHandle, SPI_FLAG_RXNE, RESET, 2) != HAL_OK)
+     {
+     return;
+     }
+     /* Disable SPE */
+     SPI1->CR1 &= ~SPI_CR1_SPE;
+}
+uint8_t spi_send_read_U8(uint8_t *send,uint8_t *receive)
+{
+    //HAL_SPI_TransmitReceive(&SpiHandle,send,receive,1,5);
+    /* enable SPE */
+
+    SPI1->CR1 |= SPI_CR1_SPE;
+     /* Wait until TXE flag is set to send data*/
+     if(SPI_WaitOnFlagUntilTimeout(&SpiHandle, SPI_FLAG_TXE, RESET, 2000) != HAL_OK)
+     {
+            return -1;
+     }
+    /* send 8 bits */
+    *((__IO uint8_t *)&SPI1->DR) = *send;
+
+    /* wait until RXNE flag is set */
+    if(SPI_WaitOnFlagUntilTimeout(&SpiHandle, SPI_FLAG_RXNE, RESET, 2000) != HAL_OK)
+     {
+      return -1;
+     }
+
+    /* read the spi data */
+    *receive = *((__IO uint8_t *)&SPI1->DR);
+
+     /* Disable SPE */
+     SPI1->CR1 &= ~SPI_CR1_SPE;
+
+     /*return Rx data*/
+    return (uint8_t) *receive;
+}
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
   /* Turn LED2 on: Transfer in transmission/reception process is correct */
@@ -170,6 +216,52 @@ static void Error_Handler(void)
   }
 }
 
+/* USART2 init function */
+void MX_USART2_UART_Init(void)
+{
+
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+
+
+
+}
+void HAL_UART_MspInit(UART_HandleTypeDef* huart)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+  if(huart->Instance==USART2)
+  {
+  /* USER CODE BEGIN USART2_MspInit 0 */
+
+  /* USER CODE END USART2_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_USART2_CLK_ENABLE();
+
+    /**USART2 GPIO Configuration
+    PA2     ------> USART2_TX
+    PA3     ------> USART2_RX
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    MX_USART2_UART_Init();
+  /* USER CODE BEGIN USART2_MspInit 1 */
+
+  /* USER CODE END USART2_MspInit 1 */
+  }
+
+}
+
 #ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
@@ -189,13 +281,3 @@ void assert_failed(uint8_t* file, uint32_t line)
   }
 }
 #endif
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

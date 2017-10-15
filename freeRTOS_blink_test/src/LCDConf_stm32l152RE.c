@@ -99,8 +99,8 @@ Purpose     : Display controller configuration (single layer)
 //
 // Physical display size
 //
-#define XSIZE_PHYS  240
-#define YSIZE_PHYS  320
+#define XSIZE_PHYS  320
+#define YSIZE_PHYS  480
 
 extern SPI_HandleTypeDef SpiHandle;
 
@@ -210,9 +210,25 @@ static void LcdWriteReg(U16 Data)
 * Function description:
 *   Writes a value to a display register
 */
+void LcdWriteDataEx(U16 Data)
+{
+    //GPIOA->BSRR = (uint32_t)GPIO_PIN_9;
+
+
+
+    TFTWriteData(Data);
+
+
+}
 static void LcdWriteData(U16 Data)
 {
+    //GPIOA->BSRR = (uint32_t)GPIO_PIN_9;
+
+
+
     TFTWriteData(Data);
+
+
 }
 
 /********************************************************************
@@ -228,6 +244,7 @@ static void LcdWriteDataMultiple(U16 *pData, int NumItems)
     for(int i=0; i<(NumItems); i++) {
         TFTWriteData(*pData++);
     }
+
 }
 
 /********************************************************************
@@ -241,7 +258,7 @@ static void LcdReadDataMultiple(U16 *pData, int NumItems)
 {
   while (NumItems--)
   {
-    *pData++ = TFTReadData();
+    *pData++ = 0;//TFTReadData();
     //while (1);
   }
 }
@@ -261,8 +278,13 @@ static void LcdReadDataMultiple(U16 *pData, int NumItems)
 static void LCD_LL_Init(void)
 {
 
-    TFTInit2_4Inch();
-
+    //TFTInit2_4Inch();
+    //ili9341_ini_adafruit();
+    //lcdInitIli9341();
+    //ili9341_init_original();
+    //ili9486_ini2();
+    //ili9488_ini();
+    ili9481_initGit();
 }
 
 /*********************************************************************
@@ -293,7 +315,7 @@ void LCD_X_Config(void)
   // Orientation
   //
 
-    Config.Orientation = GUI_SWAP_XY |GUI_MIRROR_Y ;//| GUI_MIRROR_Y;
+    Config.Orientation = GUI_SWAP_XY;// |GUI_MIRROR_Y ;//| GUI_MIRROR_Y;
 
   GUIDRV_FlexColor_Config(pDevice, &Config);
   //
@@ -304,7 +326,9 @@ void LCD_X_Config(void)
   PortAPI.pfWriteM16_A1 = LcdWriteDataMultiple;
   PortAPI.pfReadM16_A1  = LcdReadDataMultiple;
 // GUIDRV_FLEXCOLOR_F66708 for ili9325 https://www.segger.com/emwin-guidrv-flexcolor.html
-    GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66708, GUIDRV_FLEXCOLOR_M16C0B16);
+ // GUIDRV_FLEXCOLOR_F66709 ILI9481 See Manual 5.0
+  //ili9341 GUIDRV_FLEXCOLOR_F66709
+    GUIDRV_FlexColor_SetFunc(pDevice, &PortAPI, GUIDRV_FLEXCOLOR_F66709, GUIDRV_FLEXCOLOR_M16C0B16);
 
     //
     // Initialize display driver
