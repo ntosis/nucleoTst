@@ -374,6 +374,7 @@ int GUI_TOUCH_X_MeasureX(void) {
     1 001 0 0 00*/
     /* local variables */
     uint8_t frame_read_XP = 0b11011001;
+    uint8_t power_down_xpt2046 = 0b10011000;
     uint8_t tmp_buffer=0;
     uint8_t uart_buffer[50]={0};
 
@@ -397,17 +398,19 @@ int GUI_TOUCH_X_MeasureX(void) {
 
 
     /* set CS to low */
-    //__LOW(TOUCH_CS);
     GPIOC->ODR &=  ~((1<<6));
+
     /* send the command */
     spi_send_read_U8(&frame_read_XP,&tmp_buffer);
     /* read the raw value */
     spi_send_read_U8(0,&tmp_buffer);
-    //spi_send_U8(frame_read_XP);
+    /* power down xpt2046 */
+    spi_send_U8(power_down_xpt2046);
+
     /* set CS to high */
-    //__HIGH(TOUCH_CS);
-    GPIOC->ODR |=  ((1<<6)); //HIGH CS
-    /* set spi busy flag low*/
+    GPIOC->ODR |=  ((1<<6));
+
+    /* set spi busy flag low */
     spi_TFT_busy_flag = 0;
     sprintf(uart_buffer,"X: %d\r\n",tmp_buffer);
     HAL_UART_Transmit(&huart2,uart_buffer,sizeof(uart_buffer),5);
@@ -423,6 +426,7 @@ int GUI_TOUCH_X_MeasureY(void) {
     S always high, 101=yp read, 1=8bit ADC, 0=DFR, 00=power down mode */
     /* local variables */
     uint8_t frame_read_YP = 0b10011001;
+    uint8_t power_down_xpt2046 = 0b10011000;
     uint8_t tmp_buffer=0;
         uint8_t uart_buffer[50]={0};
 
@@ -446,20 +450,21 @@ int GUI_TOUCH_X_MeasureY(void) {
     spi_TFT_busy_flag = 1;
 
     /* set CS to low */
-    //__LOW(TOUCH_CS);
     GPIOC->ODR &=  ~((1<<6));
 
     /* send the command */
     spi_send_read_U8(&frame_read_YP,&tmp_buffer);
     /* read the raw value */
     spi_send_read_U8(0,&tmp_buffer);
-    //spi_send_U8(frame_read_YP);
+    /* power down xpt2046 */
+    spi_send_U8(power_down_xpt2046);
+
     /* set CS to high */
-    //__HIGH(TOUCH_CS);
-    GPIOC->ODR |=  ((1<<6)); //HIGH CS
+    GPIOC->ODR |=  ((1<<6));
+
     /* set spi busy flag low*/
     spi_TFT_busy_flag = 0;
-    sprintf(uart_buffer,"Y: %d\r\n",tmp_buffer);
+    sprintf(uart_buffer,"Y: %d ",tmp_buffer);
     HAL_UART_Transmit(&huart2,uart_buffer,sizeof(uart_buffer),5);
     /* return value */
     return tmp_buffer;

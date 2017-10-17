@@ -341,8 +341,8 @@ void LCD_X_Config(void)
     //
     // Calibrate touch screen
     //
-    GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 320, 3840, 430);
-    GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 240, 3600, 380);
+    GUI_TOUCH_Calibrate(GUI_COORD_Y, 0, 480, 125, 12);
+    GUI_TOUCH_Calibrate(GUI_COORD_X, 0, 320, 117, 15);
 
 }
 

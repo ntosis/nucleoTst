@@ -144,7 +144,7 @@ int main(void)
 
     if (HAL_UART_Init(&huart2) != HAL_OK)
         asm("bkpt 255");
-  //GUI_Init();
+  GUI_Init();
   WM_SetCreateFlags(WM_CF_MEMDEV);
 
   //HAL_MspInit();
@@ -233,14 +233,12 @@ void Task_300ms(void const *argument)
 void Task_10ms(void const *argument)
     {
         portTickType xLastWakeTime;
-        const portTickType xDelay = 500 / portTICK_RATE_MS;
+        const portTickType xDelay = 10 / portTICK_RATE_MS;
         // Initialise the xLastWakeTime variable with the current time.
              xLastWakeTime = xTaskGetTickCount ();
     		while(1) {
     			 //readEncoder();
-    			if(1){
-    			GUI_PID_STATE State;
-    		  	State.Pressed = 1;
+    			if((!__READ(TOUCH_INT))&&(!spi_TFT_busy_flag)){
 
     		  	 // Touch Screen
     			GUI_TOUCH_Exec();
@@ -259,7 +257,7 @@ void Task_500ms(void const *argument)
         const portTickType xDelay = 500 / portTICK_RATE_MS;
         uint8_t internCounter=0;
         char buffer[10]= {0};
-        //GUITask();
+        GUITask();
         //GUI_Clear();
         //GUI_Exec();
         /*GUI_CURSOR_Show();
@@ -279,9 +277,8 @@ void Task_500ms(void const *argument)
     			 volatile CAL_PARAM *gp = &CALinEE;
     			 volatile uint8_t ii =  oneLevelSystem_C;
     			 //Ctrl_Subsystem_step();
-    			 //GUI_Exec();
+    			 GUI_Exec();
     			 //run every 1 second
-    			//TFTWriteCmd(0x29);
     			  if(internCounter==2) {
 
     				      //Ctrl_Subsystem_step();
