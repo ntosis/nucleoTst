@@ -146,7 +146,8 @@ int main(void)
         asm("bkpt 255");
   GUI_Init();
   WM_SetCreateFlags(WM_CF_MEMDEV);
-
+  GUI_CURSOR_Show();
+  GUI_CURSOR_Select(&GUI_CursorCrossL);
   //HAL_MspInit();
   //initRtrEncoder();
   //initLEDs();
